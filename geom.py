@@ -41,14 +41,21 @@ class Vector2(RectEntity):
         return self.v
 
     def collide(self, it):
-        if not(isinstance(it, Circle)):
-            raise Exception('collides other than vector with circle are not'\
-                            + ' supported')
-        # optimisation
-        if not(self.check_rect(it)):
-            return (False, 0)
-        # normal flow
-        raise Exception('not yet implemented')
+        if (isinstance(it, Circle)):
+            # optimisation
+            if not(self.check_rect(it)):
+                return (False, 0)
+            # normal flow
+            raise Exception('not yet implemented')
+        elif (isinstance(it, Box)):
+            # optimisation
+            if not(self.check_rect(it)):
+                return (False, 0)
+            raise Exception('not yet implemented')
+        else
+            raise Exception('collides of Vector2 other than ones with Circle'\
+                            + ' or with Box' \
+                            + ' are not supported')
 
 class Circle(RectEntity):
     """Circle"""
@@ -65,8 +72,50 @@ class Circle(RectEntity):
         self.b = self.cy + self.r
 
     def collide(self, it):
-        if not(isinstance(it, Vector2)):
-            raise Exception('collides other than vector with circle are not'\
-                            + ' supported')
-        return it.collide(self)
+        if (isinstance(it, Vector2)):
+            return it.collide(self)
+        elif (isinstance(it, Circle)):
+            # optimisation
+            if not(self.check_rect(it)):
+                return (False, 0)
+            raise Exception('not yet implemented')
+        elif (isinstance(it, Box)):
+            # optimisation
+            if not(self.check_rect(it)):
+                return (False, 0)
+            raise Exception('not yet implemented')
+        else:
+            raise Exception('collides of Circle other than ones with Vector2'\
+                            + ' or with Circle' \
+                            + ' or with Box' \
+                            + ' are not supported')
+
+class Box(RectEntity):
+    """Box"""
+    def __init__(self, cx, cy, w, h):
+        self.cx = cx
+        self.cy = cy
+        self.w = w
+        self.h = h
+        self.update_rect()
+
+    def update_rect(self):
+        self.x = self.cx - self.w/2
+        self.r = self.cx + self.w/2
+        self.y = self.cy - self.h/2
+        self.b = self.cy + self.h/2
+
+    def collide(self, it):
+        if (isinstance(it, Vector2)):
+            return it.collide(self)
+        elif (isinstance(it, Circle)):
+            return it.collide(self)
+        elif (isinstance(it, Box)):
+            # Box is the same as Rect
+            return (self.check_rect(it), 0)
+        else:
+            raise Exception('collides of Box other than ones with Vector2'\
+                            + ' or with Circle' \
+                            + ' or with Box' \
+                            + ' are not supported')
 

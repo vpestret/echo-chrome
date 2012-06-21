@@ -2,15 +2,15 @@ import math
 
 class RectEntity:
     """Basic rectangle intended for optimisation in collision detection"""
-    def __init__(self, x, y, r, b):
-        self.x = x
-        self.y = y
-        self.r = r
-        self.b = b 
+    def __init__(self, re_x, re_y, re_r, re_b):
+        self.re_x = re_x
+        self.re_y = re_y
+        self.re_r = re_r
+        self.re_b = re_b 
 
     def check_rect(self, ge):
-        if (self.x > ge.r or ge.x > self.r or \
-            self.y > ge.b or ge.y > self.b):
+        if (self.re_x > ge.re_r or ge.re_x > self.re_r or \
+            self.re_y > ge.re_b or ge.re_y > self.re_b):
             return False
         else:
             return True
@@ -29,10 +29,10 @@ class Vector2(RectEntity):
         self.update_rect()
     
     def update_rect(self):
-        self.x = min([self.cx, self.cx+self.vx])
-        self.r = max([self.cx, self.cx+self.vx])
-        self.y = min([self.cy, self.cy+self.vy])
-        self.b = max([self.cy, self.cy+self.vy])
+        self.re_x = min([self.cx, self.cx+self.vx])
+        self.re_r = max([self.cx, self.cx+self.vx])
+        self.re_y = min([self.cy, self.cy+self.vy])
+        self.re_b = max([self.cy, self.cy+self.vy])
 
     def r2(self):
         return self.v*self.v
@@ -54,7 +54,8 @@ class Vector2(RectEntity):
             if (s2 < r2):
                 return (True, 1.0)
             # beginning is not inside the circle
-            v4 = self.v*self.v*self.v*self.v
+            v2 = self.v*self.v
+            v4 = v2*v2
             s4 = s2*s2
             r4 = r2*r2
             # just double squared v > s-r
@@ -90,10 +91,10 @@ class Circle(RectEntity):
         self.update_rect()
 
     def update_rect(self):
-        self.x = self.cx - self.r
-        self.r = self.cx + self.r
-        self.y = self.cy - self.r
-        self.b = self.cy + self.r
+        self.re_x = self.cx - self.r
+        self.re_r = self.cx + self.r
+        self.re_y = self.cy - self.r
+        self.re_b = self.cy + self.r
 
     def collide(self, it):
         """returns tuple first boolean collide indicator,\
@@ -132,10 +133,10 @@ class Box(RectEntity):
         self.update_rect()
 
     def update_rect(self):
-        self.x = self.cx - self.w/2
-        self.r = self.cx + self.w/2
-        self.y = self.cy - self.h/2
-        self.b = self.cy + self.h/2
+        self.re_x = self.cx - self.w/2
+        self.re_r = self.cx + self.w/2
+        self.re_y = self.cy - self.h/2
+        self.re_b = self.cy + self.h/2
 
     def collide(self, it):
         """returns tuple first boolean collide indicator,\
@@ -157,18 +158,23 @@ import random
 import Tkinter
 
 
-def tk_draw_vector(canvas, vec, margin):
+def tk_draw_vector(canvas, vec, margin, lwidth = 1, lcolor = 'black', draw_origin = True):
     # draw origin
-    canvas.create_line((margin + vec.cx - 5, margin + vec.cy - 5,\
-                        margin + vec.cx + 5, margin + vec.cy + 5))
-    canvas.create_line((margin + vec.cx + 5, margin + vec.cy - 5,\
-                        margin + vec.cx - 5, margin + vec.cy + 5))
+    if (draw_origin):
+        canvas.create_line(margin + vec.cx - 5, margin + vec.cy - 5,\
+                           margin + vec.cx + 5, margin + vec.cy + 5,\
+                           width=lwidth, fill=lcolor)
+        canvas.create_line(margin + vec.cx + 5, margin + vec.cy - 5,\
+                           margin + vec.cx - 5, margin + vec.cy + 5,\
+                           width=lwidth, fill=lcolor)
     # draw vector itself
-    canvas.create_line((margin + vec.cx, margin + vec.cy,\
-                        margin + vec.cx + vec.vx, margin + vec.cy + vec.vy))
+    canvas.create_line(margin + vec.cx, margin + vec.cy,\
+                       margin + vec.cx + vec.vx, margin + vec.cy + vec.vy,\
+                       width=lwidth, fill=lcolor)
 
-def tk_draw_circle(canvas, circ):
-    pass
+def tk_draw_circle(canvas, circ, margin):
+    canvas.create_oval(margin + circ.cx - circ.r, margin + circ.cy - circ.r,\
+                       margin + circ.cx + circ.r, margin + circ.cy + circ.r)
 
 def gen_vectors(num_vectors, max_x, max_y, max_v):
     vectors = []
@@ -178,6 +184,14 @@ def gen_vectors(num_vectors, max_x, max_y, max_v):
                                random.randint(-max_v,max_v), \
                                random.randint(-max_v,max_v)))
     return vectors
+
+def gen_circles(num_circles, max_x, max_y, max_r):
+    circles = []
+    for idx in range(num_circles):
+        circles.append(Circle(random.randint(0,max_x), \
+                               random.randint(0,max_y), \
+                               random.randint(10,max_r)))
+    return circles
 
 class Painter:
     def __init__(self, canvas, nv, nc, max_x, max_y, max_v, max_r, margin):
@@ -198,12 +212,28 @@ class Painter:
         # draw
         for vec in vectors:
             tk_draw_vector(self.canvas, vec,\
+                           self.margin, 1)
+    
+        # prepare circles
+        circles = gen_circles(self.num_circles, self.max_x,\
+                              self.max_y, self.max_r)
+        # draw
+        for circ in circles:
+            tk_draw_circle(self.canvas, circ,\
                            self.margin)
+
+        # collide vectors with circles
+        for vec in vectors:
+            for circ in circles:
+                (fact, ratio) = vec.collide(circ)
+                if (fact):
+                    tk_draw_vector(self.canvas,
+                                   Vector2(vec.cx, vec.cy, vec.vx, vec.vy), 
+                                   self.margin, 2, 'red', False)
 
 def draw_painter(event):
     global painter
     painter.draw(event)
-
 
 def test():
     num_vectors = 10
@@ -214,24 +244,17 @@ def test():
     max_r = 50
     margin = max([max_v, max_r]) + 5
 
-    # prepare circles
-    circles = []
-    for idx in range(num_circles):
-        circles.append(Circle(random.randint(0,max_x), \
-                               random.randint(0,max_y), \
-                               random.randint(0,max_v)))
-
     # draw everything
     root = Tkinter.Tk()
     root.title('geom module test')
     root.geometry(repr(max_x+2*margin) + 'x' + repr(max_y+2*margin))
-    canvas = Tkinter.Canvas(root)
+    canvas = Tkinter.Canvas(root, width=max_x+2*margin, height=max_y+2*margin)
     canvas.grid(column=0, row=0,\
                 sticky=(Tkinter.N, Tkinter.W, Tkinter.E, Tkinter.S))
 
     global painter
     painter = Painter(canvas, num_vectors, num_circles,\
-                      max_x, max_y, max_r, max_v,\
+                      max_x, max_y, max_v, max_r,\
                       margin)
 
     canvas.bind("<Button-1>", draw_painter)

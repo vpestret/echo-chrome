@@ -9,8 +9,8 @@ class RectEntity:
         self.b = b 
 
     def check_rect(self, ge):
-        if (self.x > ge.r || ge.x > self.r || \
-            self.y > ge.b || ge.y > self.b):
+        if (self.x > ge.r or ge.x > self.r or \
+            self.y > ge.b or ge.y > self.b):
             return False
         else:
             return True
@@ -76,7 +76,7 @@ class Vector2(RectEntity):
             if not(self.check_rect(it)):
                 return (False, 0.0)
             raise Exception('not yet implemented')
-        else
+        else:
             raise Exception('collides of Vector2 other than ones with Circle'\
                             + ' or with Box' \
                             + ' are not supported')
@@ -152,4 +152,93 @@ class Box(RectEntity):
                             + ' or with Circle' \
                             + ' or with Box' \
                             + ' are not supported')
+
+import random
+import Tkinter
+
+
+def tk_draw_vector(canvas, vec, margin):
+    # draw origin
+    canvas.create_line((margin + vec.cx - 5, margin + vec.cy - 5,\
+                        margin + vec.cx + 5, margin + vec.cy + 5))
+    canvas.create_line((margin + vec.cx + 5, margin + vec.cy - 5,\
+                        margin + vec.cx - 5, margin + vec.cy + 5))
+    # draw vector itself
+    canvas.create_line((margin + vec.cx, margin + vec.cy,\
+                        margin + vec.cx + vec.vx, margin + vec.cy + vec.vy))
+
+def tk_draw_circle(canvas, circ):
+    pass
+
+def gen_vectors(num_vectors, max_x, max_y, max_v):
+    vectors = []
+    for idx in range(num_vectors):
+        vectors.append(Vector2(random.randint(0,max_x), \
+                               random.randint(0,max_y), \
+                               random.randint(-max_v,max_v), \
+                               random.randint(-max_v,max_v)))
+    return vectors
+
+class Painter:
+    def __init__(self, canvas, nv, nc, max_x, max_y, max_v, max_r, margin):
+        self.canvas = canvas
+        self.num_vectors = nv
+        self.num_circles = nc
+        self.max_x = max_x
+        self.max_y = max_y
+        self.max_v = max_v
+        self.max_r = max_r
+        self.margin = margin
+
+    def draw(self, event):
+        self.canvas.delete(Tkinter.ALL)
+        # prepare vectors
+        vectors = gen_vectors(self.num_vectors, self.max_x,\
+                              self.max_y, self.max_v)
+        # draw
+        for vec in vectors:
+            tk_draw_vector(self.canvas, vec,\
+                           self.margin)
+
+def draw_painter(event):
+    global painter
+    painter.draw(event)
+
+
+def test():
+    num_vectors = 10
+    num_circles = 10
+    max_x = 400
+    max_y = 200
+    max_v = 50
+    max_r = 50
+    margin = max([max_v, max_r]) + 5
+
+    # prepare circles
+    circles = []
+    for idx in range(num_circles):
+        circles.append(Circle(random.randint(0,max_x), \
+                               random.randint(0,max_y), \
+                               random.randint(0,max_v)))
+
+    # draw everything
+    root = Tkinter.Tk()
+    root.title('geom module test')
+    root.geometry(repr(max_x+2*margin) + 'x' + repr(max_y+2*margin))
+    canvas = Tkinter.Canvas(root)
+    canvas.grid(column=0, row=0,\
+                sticky=(Tkinter.N, Tkinter.W, Tkinter.E, Tkinter.S))
+
+    global painter
+    painter = Painter(canvas, num_vectors, num_circles,\
+                      max_x, max_y, max_r, max_v,\
+                      margin)
+
+    canvas.bind("<Button-1>", draw_painter)
+
+    root.mainloop()
+    
+
+if __name__ == '__main__':
+    test()
 

@@ -146,7 +146,7 @@ class Box(RectEntity):
             return it.collide(self)
         elif (isinstance(it, Box)):
             # Box is the same as Rect
-            return (self.check_rect(it), 0.0)
+            return (self.check_rect(it), 0.0) # TODO: collide ratio 
         else:
             raise Exception('collides of Box other than ones with Vector2'\
                             + ' or with Circle' \

@@ -55,14 +55,11 @@ class Vector2(RectEntity):
                 return (True, 1.0)
             # beginning is not inside the circle
             v2 = self.v*self.v
-            v4 = v2*v2
-            s4 = s2*s2
-            r4 = r2*r2
-            # just double squared v > s-r
-            if not(v4+s4+r4 > 2*v2*s2+2*s2*r2+2*v2*r2):
+            # just squared v+r > s
+            if not(v2+2*self.v*it.r+r2 > s2):
                 return (False, 0.0)
             sxv = (it.cx-self.cx)*self.vy - (it.cy-self.cy)*self.vx
-            d2 = sxv*sxv/(self.v*self.v)
+            d2 = sxv*sxv/v2
             # just squared d < r
             if not(d2 < r2):
                 return (False, 0.0) # fly by w/o impact
@@ -158,7 +155,8 @@ import random
 import Tkinter
 
 
-def tk_draw_vector(canvas, vec, margin, lwidth = 1, lcolor = 'black', draw_origin = True):
+def tk_draw_vector(canvas, vec, margin, lwidth = 1, lcolor = 'black',\
+                   draw_origin = True):
     # draw origin
     if (draw_origin):
         canvas.create_line(margin + vec.cx - 5, margin + vec.cy - 5,\
@@ -178,6 +176,10 @@ def tk_draw_circle(canvas, circ, margin):
 
 def gen_vectors(num_vectors, max_x, max_y, max_v):
     vectors = []
+    #vectors.append(Vector2(130, \
+    #                       100, \
+    #                       80, \
+    #                       0))
     for idx in range(num_vectors):
         vectors.append(Vector2(random.randint(0,max_x), \
                                random.randint(0,max_y), \
@@ -187,6 +189,9 @@ def gen_vectors(num_vectors, max_x, max_y, max_v):
 
 def gen_circles(num_circles, max_x, max_y, max_r):
     circles = []
+    #circles.append(Circle(200, \
+    #                      100, \
+    #                      50))
     for idx in range(num_circles):
         circles.append(Circle(random.randint(0,max_x), \
                                random.randint(0,max_y), \
@@ -228,7 +233,7 @@ class Painter:
                 (fact, ratio) = vec.collide(circ)
                 if (fact):
                     tk_draw_vector(self.canvas,
-                                   Vector2(vec.cx, vec.cy, vec.vx, vec.vy), 
+                                   Vector2(vec.cx + vec.vx*(1-ratio), vec.cy + vec.vy*(1-ratio), vec.vx*ratio, vec.vy*ratio), 
                                    self.margin, 2, 'red', False)
 
 def draw_painter(event):

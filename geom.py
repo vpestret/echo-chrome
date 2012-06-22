@@ -58,6 +58,11 @@ class Vector2(RectEntity):
             # just squared v+r > s
             if not(v2+2*self.v*it.r+r2 > s2):
                 return (False, 0.0)
+            # scalar multiplication
+            smv = (it.cx-self.cx)*self.vx + (it.cy-self.cy)*self.vy
+            if not(smv > 0):
+                return (False, 0.0)
+            # vector multiplication
             sxv = (it.cx-self.cx)*self.vy - (it.cy-self.cy)*self.vx
             d2 = sxv*sxv/v2
             # just squared d < r
@@ -176,10 +181,10 @@ def tk_draw_circle(canvas, circ, margin):
 
 def gen_vectors(num_vectors, max_x, max_y, max_v):
     vectors = []
-    #vectors.append(Vector2(130, \
-    #                       100, \
-    #                       80, \
-    #                       0))
+    #vectors.append(Vector2(286,\
+    #                   194,\
+    #                   -30,\
+    #                   46))
     for idx in range(num_vectors):
         vectors.append(Vector2(random.randint(0,max_x), \
                                random.randint(0,max_y), \
@@ -187,25 +192,27 @@ def gen_vectors(num_vectors, max_x, max_y, max_v):
                                random.randint(-max_v,max_v)))
     return vectors
 
-def gen_circles(num_circles, max_x, max_y, max_r):
+def gen_circles(num_circles, max_x, max_y, min_r, max_r):
     circles = []
-    #circles.append(Circle(200, \
-    #                      100, \
-    #                      50))
+    #circles.append(Circle(329,\
+    #                   151,\
+    #                   43))
     for idx in range(num_circles):
         circles.append(Circle(random.randint(0,max_x), \
                                random.randint(0,max_y), \
-                               random.randint(10,max_r)))
+                               random.randint(min_r,max_r)))
     return circles
 
 class Painter:
-    def __init__(self, canvas, nv, nc, max_x, max_y, max_v, max_r, margin):
+    def __init__(self, canvas, nv, nc, max_x, max_y, max_v,\
+                 min_r, max_r, margin):
         self.canvas = canvas
         self.num_vectors = nv
         self.num_circles = nc
         self.max_x = max_x
         self.max_y = max_y
         self.max_v = max_v
+        self.min_r = min_r
         self.max_r = max_r
         self.margin = margin
 
@@ -221,24 +228,38 @@ class Painter:
     
         # prepare circles
         circles = gen_circles(self.num_circles, self.max_x,\
-                              self.max_y, self.max_r)
+                              self.max_y, self.min_r, self.max_r)
         # draw
         for circ in circles:
             tk_draw_circle(self.canvas, circ,\
                            self.margin)
 
         # collide vectors with circles
+        print ('--------------- Next scene -------------------')
         for vec in vectors:
             for circ in circles:
                 (fact, ratio) = vec.collide(circ)
                 if (fact):
                     tk_draw_vector(self.canvas,
-                                   Vector2(vec.cx + vec.vx*(1-ratio), vec.cy + vec.vy*(1-ratio), vec.vx*ratio, vec.vy*ratio), 
+                                   Vector2(vec.cx + vec.vx*(1-ratio),\
+                                           vec.cy + vec.vy*(1-ratio),\
+                                           vec.vx*ratio, vec.vy*ratio), 
                                    self.margin, 2, 'red', False)
+                    print ('Vector2(%d, \n\
+                       %d, \n\
+                       %d, \n\
+                       %d))' % (vec.cx, vec.cy, vec.vx, vec.vy))
+
+                    print ('vs Circle(%d, \n\
+                          %d, \n\
+                          %d))' % (circ.cx, circ.cy, circ.r))
 
 def draw_painter(event):
     global painter
     painter.draw(event)
+
+def print_event(event):
+    print 'Rbut(%d,%d)' % (event.x-55, event.y-55)
 
 def test():
     num_vectors = 10
@@ -246,6 +267,7 @@ def test():
     max_x = 400
     max_y = 200
     max_v = 50
+    min_r = 10
     max_r = 50
     margin = max([max_v, max_r]) + 5
 
@@ -259,10 +281,13 @@ def test():
 
     global painter
     painter = Painter(canvas, num_vectors, num_circles,\
-                      max_x, max_y, max_v, max_r,\
+                      max_x, max_y, max_v, min_r, max_r,\
                       margin)
 
-    canvas.bind("<Button-1>", draw_painter)
+    canvas.bind('<Button-1>', draw_painter)
+    canvas.bind('<Button-3>', print_event)
+
+    painter.draw(None)
 
     root.mainloop()
     

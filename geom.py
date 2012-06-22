@@ -179,12 +179,15 @@ def tk_draw_circle(canvas, circ, margin):
     canvas.create_oval(margin + circ.cx - circ.r, margin + circ.cy - circ.r,\
                        margin + circ.cx + circ.r, margin + circ.cy + circ.r)
 
+def tk_draw_arc(canvas, circ, margin, start, extent,\
+                lwidth = 1, lcolor = 'black'):
+    canvas.create_arc(margin + circ.cx - circ.r, margin + circ.cy - circ.r,\
+                      margin + circ.cx + circ.r, margin + circ.cy + circ.r,\
+                      start = start, extent = extent,\
+                      width=lwidth, style = Tkinter.ARC, outline=lcolor)
+
 def gen_vectors(num_vectors, max_x, max_y, max_v):
     vectors = []
-    #vectors.append(Vector2(286,\
-    #                   194,\
-    #                   -30,\
-    #                   46))
     for idx in range(num_vectors):
         vectors.append(Vector2(random.randint(0,max_x), \
                                random.randint(0,max_y), \
@@ -194,9 +197,6 @@ def gen_vectors(num_vectors, max_x, max_y, max_v):
 
 def gen_circles(num_circles, max_x, max_y, min_r, max_r):
     circles = []
-    #circles.append(Circle(329,\
-    #                   151,\
-    #                   43))
     for idx in range(num_circles):
         circles.append(Circle(random.randint(0,max_x), \
                                random.randint(0,max_y), \
@@ -245,25 +245,50 @@ class Painter:
                                            vec.cy + vec.vy*(1-ratio),\
                                            vec.vx*ratio, vec.vy*ratio), 
                                    self.margin, 2, 'red', False)
-                    print ('Vector2(%d, \n\
+                    print ('collide Vector2(%d, \n\
                        %d, \n\
                        %d, \n\
                        %d))' % (vec.cx, vec.cy, vec.vx, vec.vy))
 
-                    print ('vs Circle(%d, \n\
+                    print ('with Circle(%d, \n\
                           %d, \n\
                           %d))' % (circ.cx, circ.cy, circ.r))
+
+        # collide circles with circles
+        for circ1 in circles:
+            for circ2 in circles:
+                if (circ1 != circ2):
+                    (fact, ratio) = circ1.collide(circ2)
+                else:
+                    fact = False
+                if (fact):
+                    span = 360*ratio
+                    # take y coord inversion into account
+                    start = math.atan2(-(circ2.cy - circ1.cy),\
+                             circ2.cx - circ1.cx)*360/(2*math.pi)
+                    start -= span/2
+                    extent = span
+                    tk_draw_arc(self.canvas, circ1, self.margin,\
+                        start, extent, 2, 'green')
+                    print ('collide Circle(%d, \n\
+                          %d, \n\
+                          %d))' % (circ1.cx, circ1.cy, circ1.r))
+
+                    print ('with Circle(%d, \n\
+                          %d, \n\
+                          %d))' % (circ2.cx, circ2.cy, circ2.r))
 
 def draw_painter(event):
     global painter
     painter.draw(event)
 
 def print_event(event):
-    print 'Rbut(%d,%d)' % (event.x-55, event.y-55)
+    global painter
+    print 'Rbut(%d,%d)' % (event.x-painter.margin, event.y-painter.margin)
 
 def test():
     num_vectors = 10
-    num_circles = 10
+    num_circles = 5
     max_x = 400
     max_y = 200
     max_v = 50

@@ -118,7 +118,17 @@ class Circle(RectEntity):
             # optimisation
             if not(self.check_rect(it)):
                 return (False, 0.0)
-            raise Exception('not yet implemented')
+            s2_1 = (it.re_x-self.cx)*(it.re_x-self.cx)\
+                  + (it.re_y-self.cy)*(it.re_y-self.cy)
+            s2_2 = (it.re_r-self.cx)*(it.re_r-self.cx)\
+                  + (it.re_y-self.cy)*(it.re_y-self.cy)
+            s2_3 = (it.re_r-self.cx)*(it.re_r-self.cx)\
+                  + (it.re_b-self.cy)*(it.re_b-self.cy)
+            s2_4 = (it.re_x-self.cx)*(it.re_x-self.cx)\
+                  + (it.re_b-self.cy)*(it.re_b-self.cy)
+            if not(min([s2_1, s2_2, s2_3, s2_4]) < self.r*self.r):
+                return (False, 0.0)
+            return (True, 1.0)
         else:
             raise Exception('collides of Circle other than ones with Vector2'\
                             + ' or with Circle' \
@@ -187,6 +197,21 @@ def tk_draw_arc(canvas, circ, margin, start, extent,\
                       start = start, extent = extent,\
                       width=lwidth, style = Tkinter.ARC, outline=lcolor)
 
+def tk_draw_rect(canvas, rect, margin, lwidth = 1, lcolor = 'black'):
+    # draw top, right, bottom, left
+    canvas.create_line(margin + rect.re_x, margin + rect.re_y,\
+                       margin + rect.re_r, margin + rect.re_y,\
+                       width=lwidth, fill=lcolor)
+    canvas.create_line(margin + rect.re_r, margin + rect.re_y,\
+                       margin + rect.re_r, margin + rect.re_b,\
+                       width=lwidth, fill=lcolor)
+    canvas.create_line(margin + rect.re_r, margin + rect.re_b,\
+                       margin + rect.re_x, margin + rect.re_b,\
+                       width=lwidth, fill=lcolor)
+    canvas.create_line(margin + rect.re_x, margin + rect.re_b,\
+                       margin + rect.re_x, margin + rect.re_y,\
+                       width=lwidth, fill=lcolor)
+
 def gen_vectors(num_vectors, max_x, max_y, max_v):
     vectors = []
     for idx in range(num_vectors):
@@ -204,17 +229,29 @@ def gen_circles(num_circles, max_x, max_y, min_r, max_r):
                                random.randint(min_r,max_r)))
     return circles
 
+def gen_rects(num_rects, max_x, max_y, min_h, max_h):
+    rects = []
+    for idx in range(num_rects):
+        rects.append(Box(random.randint(0,max_x), \
+                               random.randint(0,max_y), \
+                               random.randint(min_h,max_h), \
+                               random.randint(min_h,max_h)))
+    return rects
+
 class Painter:
-    def __init__(self, canvas, nv, nc, max_x, max_y, max_v,\
-                 min_r, max_r, margin):
+    def __init__(self, canvas, nv, nc, nr, max_x, max_y, max_v,\
+                 min_r, max_r, min_h, max_h, margin):
         self.canvas = canvas
         self.num_vectors = nv
         self.num_circles = nc
+        self.num_rects = nr
         self.max_x = max_x
         self.max_y = max_y
         self.max_v = max_v
         self.min_r = min_r
         self.max_r = max_r
+        self.min_h = min_h
+        self.max_h = max_h
         self.margin = margin
 
     def draw(self, event):
@@ -235,6 +272,14 @@ class Painter:
             tk_draw_circle(self.canvas, circ,\
                            self.margin)
 
+        # prepare rects
+        rects = gen_rects(self.num_rects, self.max_x,\
+                              self.max_y, self.min_h, self.max_h)
+        # draw
+        for rect in rects:
+            tk_draw_rect(self.canvas, rect,\
+                           self.margin, 1)
+
         # collide vectors with circles
         print ('--------------- Next scene -------------------')
         for vec in vectors:
@@ -253,7 +298,7 @@ class Painter:
 
                     print ('with Circle(%d, \n\
                           %d, \n\
-                          %d))' % (circ.cx, circ.cy, circ.r))
+                          %d))\n>>>>>' % (circ.cx, circ.cy, circ.r))
 
         # collide circles with circles
         for idx1 in range(len(circles)):
@@ -272,7 +317,7 @@ class Painter:
 
                     print ('with Circle(%d, \n\
                           %d, \n\
-                          %d))' % (circ2.cx, circ2.cy, circ2.r))
+                          %d))\n>>>>>' % (circ2.cx, circ2.cy, circ2.r))
 
 def draw_painter(event):
     global painter
@@ -285,11 +330,14 @@ def print_event(event):
 def test():
     num_vectors = 10
     num_circles = 5
+    num_rects = 5
     max_x = 400
     max_y = 200
     max_v = 50
     min_r = 10
     max_r = 50
+    min_h = 10
+    max_h = 50
     margin = max([max_v, max_r]) + 5
 
     # draw everything
@@ -301,9 +349,9 @@ def test():
                 sticky=(Tkinter.N, Tkinter.W, Tkinter.E, Tkinter.S))
 
     global painter
-    painter = Painter(canvas, num_vectors, num_circles,\
+    painter = Painter(canvas, num_vectors, num_circles, num_rects,\
                       max_x, max_y, max_v, min_r, max_r,\
-                      margin)
+                      min_h, max_h, margin)
 
     canvas.bind('<Button-1>', draw_painter)
     canvas.bind('<Button-3>', print_event)

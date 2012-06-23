@@ -118,16 +118,40 @@ class Circle(RectEntity):
             # optimisation
             if not(self.check_rect(it)):
                 return (False, 0.0)
-            s2_1 = (it.re_x-self.cx)*(it.re_x-self.cx)\
-                  + (it.re_y-self.cy)*(it.re_y-self.cy)
-            s2_2 = (it.re_r-self.cx)*(it.re_r-self.cx)\
-                  + (it.re_y-self.cy)*(it.re_y-self.cy)
-            s2_3 = (it.re_r-self.cx)*(it.re_r-self.cx)\
-                  + (it.re_b-self.cy)*(it.re_b-self.cy)
-            s2_4 = (it.re_x-self.cx)*(it.re_x-self.cx)\
-                  + (it.re_b-self.cy)*(it.re_b-self.cy)
-            if not(min([s2_1, s2_2, s2_3, s2_4]) < self.r*self.r):
-                return (False, 0.0)
+            in_ne_corner = False
+            in_se_corner = False
+            in_sw_corner = False
+            in_nw_corner = False
+            if (self.cx > it.re_r):
+                if (self.cy < it.re_y):
+                    in_ne_corner = True
+                if (self.cy > it.re_b):
+                    in_se_corner = True
+            if (self.cx < it.re_x):
+                if (self.cy < it.re_y):
+                    in_nw_corner = True
+                if (self.cy > it.re_b):
+                    in_sw_corner = True
+            if (in_nw_corner):
+                s2_1 = (it.re_x-self.cx)*(it.re_x-self.cx)\
+                      + (it.re_y-self.cy)*(it.re_y-self.cy)
+                if not(s2_1 < self.r*self.r):
+                    return (False, 0.0)
+            elif (in_ne_corner):
+                s2_2 = (it.re_r-self.cx)*(it.re_r-self.cx)\
+                      + (it.re_y-self.cy)*(it.re_y-self.cy)
+                if not(s2_2 < self.r*self.r):
+                    return (False, 0.0)
+            elif (in_se_corner):
+                s2_3 = (it.re_r-self.cx)*(it.re_r-self.cx)\
+                      + (it.re_b-self.cy)*(it.re_b-self.cy)
+                if not(s2_3 < self.r*self.r):
+                    return (False, 0.0)
+            elif (in_sw_corner):
+                s2_4 = (it.re_x-self.cx)*(it.re_x-self.cx)\
+                      + (it.re_b-self.cy)*(it.re_b-self.cy)
+                if not(s2_4 < self.r*self.r):
+                    return (False, 0.0)
             return (True, 1.0)
         else:
             raise Exception('collides of Circle other than ones with Vector2'\
@@ -256,6 +280,10 @@ class Painter:
 
     def draw(self, event):
         self.canvas.delete(Tkinter.ALL)
+        self.canvas.create_text(self.margin+self.max_x/2,10,\
+            text='LMouseBut next scene, RMouseBut print coords to console',\
+            fill='purple')
+
         # prepare vectors
         vectors = gen_vectors(self.num_vectors, self.max_x,\
                               self.max_y, self.max_v)
@@ -290,7 +318,7 @@ class Painter:
                                    Vector2(vec.cx + vec.vx*(1-ratio),\
                                            vec.cy + vec.vy*(1-ratio),\
                                            vec.vx*ratio, vec.vy*ratio), 
-                                   self.margin, 2, 'red', False)
+                                   self.margin, 2, 'red', ratio>0.999)
                     print ('collide Vector2(%d, \n\
                        %d, \n\
                        %d, \n\

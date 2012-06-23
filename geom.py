@@ -197,19 +197,19 @@ def tk_draw_arc(canvas, circ, margin, start, extent,\
                       start = start, extent = extent,\
                       width=lwidth, style = Tkinter.ARC, outline=lcolor)
 
-def tk_draw_rect(canvas, rect, margin, lwidth = 1, lcolor = 'black'):
+def tk_draw_box(canvas, box, margin, lwidth = 1, lcolor = 'black'):
     # draw top, right, bottom, left
-    canvas.create_line(margin + rect.re_x, margin + rect.re_y,\
-                       margin + rect.re_r, margin + rect.re_y,\
+    canvas.create_line(margin + box.re_x, margin + box.re_y,\
+                       margin + box.re_r, margin + box.re_y,\
                        width=lwidth, fill=lcolor)
-    canvas.create_line(margin + rect.re_r, margin + rect.re_y,\
-                       margin + rect.re_r, margin + rect.re_b,\
+    canvas.create_line(margin + box.re_r, margin + box.re_y,\
+                       margin + box.re_r, margin + box.re_b,\
                        width=lwidth, fill=lcolor)
-    canvas.create_line(margin + rect.re_r, margin + rect.re_b,\
-                       margin + rect.re_x, margin + rect.re_b,\
+    canvas.create_line(margin + box.re_r, margin + box.re_b,\
+                       margin + box.re_x, margin + box.re_b,\
                        width=lwidth, fill=lcolor)
-    canvas.create_line(margin + rect.re_x, margin + rect.re_b,\
-                       margin + rect.re_x, margin + rect.re_y,\
+    canvas.create_line(margin + box.re_x, margin + box.re_b,\
+                       margin + box.re_x, margin + box.re_y,\
                        width=lwidth, fill=lcolor)
 
 def gen_vectors(num_vectors, max_x, max_y, max_v):
@@ -229,14 +229,14 @@ def gen_circles(num_circles, max_x, max_y, min_r, max_r):
                                random.randint(min_r,max_r)))
     return circles
 
-def gen_rects(num_rects, max_x, max_y, min_h, max_h):
-    rects = []
-    for idx in range(num_rects):
-        rects.append(Box(random.randint(0,max_x), \
+def gen_boxes(num_boxes, max_x, max_y, min_h, max_h):
+    boxes = []
+    for idx in range(num_boxes):
+        boxes.append(Box(random.randint(0,max_x), \
                                random.randint(0,max_y), \
                                random.randint(min_h,max_h), \
                                random.randint(min_h,max_h)))
-    return rects
+    return boxes
 
 class Painter:
     def __init__(self, canvas, nv, nc, nr, max_x, max_y, max_v,\
@@ -244,7 +244,7 @@ class Painter:
         self.canvas = canvas
         self.num_vectors = nv
         self.num_circles = nc
-        self.num_rects = nr
+        self.num_boxes = nr
         self.max_x = max_x
         self.max_y = max_y
         self.max_v = max_v
@@ -272,12 +272,12 @@ class Painter:
             tk_draw_circle(self.canvas, circ,\
                            self.margin)
 
-        # prepare rects
-        rects = gen_rects(self.num_rects, self.max_x,\
+        # prepare boxes
+        boxes = gen_boxes(self.num_boxes, self.max_x,\
                               self.max_y, self.min_h, self.max_h)
         # draw
-        for rect in rects:
-            tk_draw_rect(self.canvas, rect,\
+        for box in boxes:
+            tk_draw_box(self.canvas, box,\
                            self.margin, 1)
 
         # collide vectors with circles
@@ -300,24 +300,45 @@ class Painter:
                           %d, \n\
                           %d))\n>>>>>' % (circ.cx, circ.cy, circ.r))
 
-        # collide circles with circles
-        for idx1 in range(len(circles)):
+        figs = []
+        figs.extend(circles)
+        figs.extend(boxes)
+        # collide figures with figures
+        for idx1 in range(len(figs)):
             for idx2 in range(idx1):
-                circ1 = circles[idx1]
-                circ2 = circles[idx2]
-                (fact,ratio) = circ1.collide(circ2)
+                fig1 = figs[idx1]
+                fig2 = figs[idx2]
+                (fact,ratio) = fig1.collide(fig2)
                 if (fact):
-                    tk_draw_arc(self.canvas, circ1, self.margin,\
-                        0, 359.9, 2, 'green')
-                    tk_draw_arc(self.canvas, circ2, self.margin,\
-                        0, 359.9, 2, 'green')
-                    print ('collide Circle(%d, \n\
-                          %d, \n\
-                          %d))' % (circ1.cx, circ1.cy, circ1.r))
-
-                    print ('with Circle(%d, \n\
-                          %d, \n\
-                          %d))\n>>>>>' % (circ2.cx, circ2.cy, circ2.r))
+                    # 1
+                    if isinstance(fig1, Circle):
+                        tk_draw_arc(self.canvas, fig1, self.margin,\
+                            0, 359.9, 2, 'green')
+                        print ('collide Circle(%d, \n\
+                              %d, \n\
+                              %d))' % (fig1.cx, fig1.cy, fig1.r))
+                    else:
+                        tk_draw_box(self.canvas, fig1, self.margin,\
+                            2, 'blue')
+                        print ('collide Box(%d, \n\
+                              %d, \n\
+                              %d, \n\
+                              %d))' % (fig1.cx, fig1.cy, fig1.h, fig1.w))
+                    # 2
+                    if isinstance(fig2, Circle):
+                        tk_draw_arc(self.canvas, fig2, self.margin,\
+                            0, 359.9, 2, 'green')
+                        print ('with Circle(%d, \n\
+                              %d, \n\
+                              %d))\n>>>>>' % (fig2.cx, fig2.cy, fig2.r))
+                    else:
+                        tk_draw_box(self.canvas, fig2, self.margin,\
+                            2, 'blue')
+                        print ('with Box(%d, \n\
+                              %d, \n\
+                              %d, \n\
+                              %d))\n>>>>>' %\
+                              (fig2.cx, fig2.cy, fig2.h, fig2.w))
 
 def draw_painter(event):
     global painter
@@ -330,7 +351,7 @@ def print_event(event):
 def test():
     num_vectors = 10
     num_circles = 5
-    num_rects = 5
+    num_boxes = 5
     max_x = 400
     max_y = 200
     max_v = 50
@@ -349,7 +370,7 @@ def test():
                 sticky=(Tkinter.N, Tkinter.W, Tkinter.E, Tkinter.S))
 
     global painter
-    painter = Painter(canvas, num_vectors, num_circles, num_rects,\
+    painter = Painter(canvas, num_vectors, num_circles, num_boxes,\
                       max_x, max_y, max_v, min_r, max_r,\
                       min_h, max_h, margin)
 

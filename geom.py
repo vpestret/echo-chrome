@@ -100,7 +100,7 @@ class Circle(RectEntity):
 
     def collide(self, it):
         """returns tuple first boolean collide indicator,\
-           second - the collide ratio if any"""
+           second - the 1.0"""
         if (isinstance(it, Vector2)):
             return it.collide(self)
         elif (isinstance(it, Circle)):
@@ -112,7 +112,7 @@ class Circle(RectEntity):
                   + (it.cy-self.cy)*(it.cy-self.cy)
             if not(s2 < (self.r+it.r)*(self.r+it.r)):
                 return (False, 0.0)
-            return (True, (self.r+it.r - math.sqrt(s2))/(self.r+it.r))
+            return (True, 1.0)
 
         elif (isinstance(it, Box)):
             # optimisation
@@ -142,14 +142,15 @@ class Box(RectEntity):
 
     def collide(self, it):
         """returns tuple first boolean collide indicator,\
-           second - the collide ratio if any"""
+           second - the 1.0"""
         if (isinstance(it, Vector2)):
             return it.collide(self)
         elif (isinstance(it, Circle)):
             return it.collide(self)
         elif (isinstance(it, Box)):
             # Box is the same as Rect
-            return (self.check_rect(it), 0.0) # TODO: collide ratio 
+            is_collided = self.check_rect(it)
+            return (is_collided, 1.0*float(is_collided))
         else:
             raise Exception('collides of Box other than ones with Vector2'\
                             + ' or with Circle' \
@@ -255,21 +256,16 @@ class Painter:
                           %d))' % (circ.cx, circ.cy, circ.r))
 
         # collide circles with circles
-        for circ1 in circles:
-            for circ2 in circles:
-                if (circ1 != circ2):
-                    (fact, ratio) = circ1.collide(circ2)
-                else:
-                    fact = False
+        for idx1 in range(len(circles)):
+            for idx2 in range(idx1):
+                circ1 = circles[idx1]
+                circ2 = circles[idx2]
+                (fact,ratio) = circ1.collide(circ2)
                 if (fact):
-                    span = 360*ratio
-                    # take y coord inversion into account
-                    start = math.atan2(-(circ2.cy - circ1.cy),\
-                             circ2.cx - circ1.cx)*360/(2*math.pi)
-                    start -= span/2
-                    extent = span
                     tk_draw_arc(self.canvas, circ1, self.margin,\
-                        start, extent, 2, 'green')
+                        0, 359.9, 2, 'green')
+                    tk_draw_arc(self.canvas, circ2, self.margin,\
+                        0, 359.9, 2, 'green')
                     print ('collide Circle(%d, \n\
                           %d, \n\
                           %d))' % (circ1.cx, circ1.cy, circ1.r))

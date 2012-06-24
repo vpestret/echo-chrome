@@ -8,9 +8,9 @@ class RectEntity:
         self.re_r = re_r
         self.re_b = re_b 
 
-    def check_rect(self, ge):
-        if (self.re_x > ge.re_r or ge.re_x > self.re_r or \
-            self.re_y > ge.re_b or ge.re_y > self.re_b):
+    def check_rect(self, it):
+        if (self.re_x > it.re_r or it.re_x > self.re_r or \
+            self.re_y > it.re_b or it.re_y > self.re_b):
             return False
         else:
             return True
@@ -78,7 +78,36 @@ class Vector2(RectEntity):
             # optimisation
             if not(self.check_rect(it)):
                 return (False, 0.0)
-            raise Exception('not yet implemented')
+            in_n_corner = False
+            in_ne_corner = False
+            in_e_corner = False
+            in_se_corner = False
+            in_s_corner = False
+            in_sw_corner = False
+            in_w_corner = False
+            in_nw_corner = False
+            if (self.cx > it.re_r):
+                if (self.cy < it.re_y):
+                    in_ne_corner = True
+                elif (self.cy > it.re_b):
+                    in_se_corner = True
+                else:
+                    in_e_corner = True
+            elif (self.cx < it.re_x):
+                if (self.cy < it.re_y):
+                    in_nw_corner = True
+                elif (self.cy > it.re_b):
+                    in_sw_corner = True
+                else:
+                    in_w_corner = True
+            else:
+                if (self.cy < it.re_y):
+                    in_n_corner = True
+                elif (self.cy > it.re_b):
+                    in_s_corner = True
+                else:
+                    return (True, 1.0)
+            return (True, 1.0)
         else:
             raise Exception('collides of Vector2 other than ones with Circle'\
                             + ' or with Box' \
@@ -125,12 +154,12 @@ class Circle(RectEntity):
             if (self.cx > it.re_r):
                 if (self.cy < it.re_y):
                     in_ne_corner = True
-                if (self.cy > it.re_b):
+                elif (self.cy > it.re_b):
                     in_se_corner = True
-            if (self.cx < it.re_x):
+            elif (self.cx < it.re_x):
                 if (self.cy < it.re_y):
                     in_nw_corner = True
-                if (self.cy > it.re_b):
+                elif (self.cy > it.re_b):
                     in_sw_corner = True
             if (in_nw_corner):
                 s2_1 = (it.re_x-self.cx)*(it.re_x-self.cx)\

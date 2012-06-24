@@ -107,7 +107,67 @@ class Vector2(RectEntity):
                     in_s_corner = True
                 else:
                     return (True, 1.0)
-            return (True, 1.0)
+            if (in_n_corner):
+                if (self.vx == 0.0):
+                    return (True, float(self.vy - (it.re_y - self.cy))/self.vy)
+                ix = float((it.re_y - self.cy)*self.vx)/self.vy + self.cx
+                if (it.re_x < ix and ix < it.re_r):
+                    return (True, float(self.vy - (it.re_y - self.cy))/self.vy)
+                return (False, 0.0)
+            elif (in_s_corner):
+                if (self.vx == 0.0):
+                    return (True, float(self.vy - (it.re_b - self.cy))/self.vy)
+                ix = float((it.re_b - self.cy)*self.vx)/self.vy + self.cx
+                if (it.re_x < ix and ix < it.re_r):
+                    return (True, float(self.vy - (it.re_b - self.cy))/self.vy)
+                return (False, 0.0)
+            elif (in_w_corner):
+                if (self.vy == 0.0):
+                    return (True, float(self.vx - (it.re_x - self.cx))/self.vx)
+                iy = float((it.re_x - self.cx)*self.vy)/self.vx + self.cy
+                if (it.re_y < iy and iy < it.re_b):
+                    return (True, float(self.vx - (it.re_x - self.cx))/self.vx)
+                return (False, 0.0)
+            elif (in_e_corner):
+                if (self.vy == 0.0):
+                    return (True, float(self.vx - (it.re_r - self.cx))/self.vx)
+                iy = float((it.re_r - self.cx)*self.vy)/self.vx + self.cy
+                if (it.re_y < iy and iy < it.re_b):
+                    return (True, float(self.vx - (it.re_r - self.cx))/self.vx)
+                return (False, 0.0)
+            elif (in_ne_corner):
+                ix = float((it.re_y - self.cy)*self.vx)/self.vy + self.cx
+                if (it.re_x < ix and ix < it.re_r):
+                    return (True, float(self.vy - (it.re_y - self.cy))/self.vy)
+                iy = float((it.re_r - self.cx)*self.vy)/self.vx + self.cy
+                if (it.re_y < iy and iy < it.re_b):
+                    return (True, float(self.vx - (it.re_r - self.cx))/self.vx)
+                return (False, 0.0)
+            elif (in_se_corner):
+                ix = float((it.re_b - self.cy)*self.vx)/self.vy + self.cx
+                if (it.re_x < ix and ix < it.re_r):
+                    return (True, float(self.vy - (it.re_b - self.cy))/self.vy)
+                iy = float((it.re_r - self.cx)*self.vy)/self.vx + self.cy
+                if (it.re_y < iy and iy < it.re_b):
+                    return (True, float(self.vx - (it.re_r - self.cx))/self.vx)
+                return (False, 0.0)
+            elif (in_sw_corner):
+                ix = float((it.re_b - self.cy)*self.vx)/self.vy + self.cx
+                if (it.re_x < ix and ix < it.re_r):
+                    return (True, float(self.vy - (it.re_b - self.cy))/self.vy)
+                iy = float((it.re_x - self.cx)*self.vy)/self.vx + self.cy
+                if (it.re_y < iy and iy < it.re_b):
+                    return (True, float(self.vx - (it.re_x - self.cx))/self.vx)
+                return (False, 0.0)
+            elif (in_nw_corner):
+                ix = float((it.re_y - self.cy)*self.vx)/self.vy + self.cx
+                if (it.re_x < ix and ix < it.re_r):
+                    return (True, float(self.vy - (it.re_y - self.cy))/self.vy)
+                iy = float((it.re_x - self.cx)*self.vy)/self.vx + self.cy
+                if (it.re_y < iy and iy < it.re_b):
+                    return (True, float(self.vx - (it.re_x - self.cx))/self.vx)
+                return (False, 0.0)
+            raise Exception('control flow reached unexpectedly this point')
         else:
             raise Exception('collides of Vector2 other than ones with Circle'\
                             + ' or with Box' \
@@ -314,34 +374,39 @@ class Painter:
             fill='purple')
 
         # prepare vectors
-        vectors = gen_vectors(self.num_vectors, self.max_x,\
+        self.vectors = gen_vectors(self.num_vectors, self.max_x,\
                               self.max_y, self.max_v)
         # draw
-        for vec in vectors:
+        for vec in self.vectors:
             tk_draw_vector(self.canvas, vec,\
                            self.margin, 1)
     
         # prepare circles
-        circles = gen_circles(self.num_circles, self.max_x,\
+        self.circles = gen_circles(self.num_circles, self.max_x,\
                               self.max_y, self.min_r, self.max_r)
         # draw
-        for circ in circles:
+        for circ in self.circles:
             tk_draw_circle(self.canvas, circ,\
                            self.margin)
 
         # prepare boxes
-        boxes = gen_boxes(self.num_boxes, self.max_x,\
+        self.boxes = gen_boxes(self.num_boxes, self.max_x,\
                               self.max_y, self.min_h, self.max_h)
         # draw
-        for box in boxes:
+        for box in self.boxes:
             tk_draw_box(self.canvas, box,\
                            self.margin, 1)
+        
+        # put circles and boxes in the one array for unification
+        figs = []
+        figs.extend(self.circles)
+        figs.extend(self.boxes)
 
-        # collide vectors with circles
+        # collide vectors with figures (circles and boxes)
         print ('--------------- Next scene -------------------')
-        for vec in vectors:
-            for circ in circles:
-                (fact, ratio) = vec.collide(circ)
+        for vec in self.vectors:
+            for fig in figs:
+                (fact, ratio) = vec.collide(fig)
                 if (fact):
                     tk_draw_vector(self.canvas,
                                    Vector2(vec.cx + vec.vx*(1-ratio),\
@@ -351,15 +416,18 @@ class Painter:
                     print ('collide Vector2(%d, \n\
                        %d, \n\
                        %d, \n\
-                       %d))' % (vec.cx, vec.cy, vec.vx, vec.vy))
+                       %d)' % (vec.cx, vec.cy, vec.vx, vec.vy))
 
-                    print ('with Circle(%d, \n\
-                          %d, \n\
-                          %d))\n>>>>>' % (circ.cx, circ.cy, circ.r))
+                    if isinstance(fig, Circle):
+                        print ('with Circle(%d, \n\
+                              %d, \n\
+                              %d)\n>>>>>' % (fig.cx, fig.cy, fig.r))
+                    else:
+                        print ('with Box(%d, \n\
+                              %d, \n\
+                              %d, \n\
+                              %d)\n>>>>>' % (fig.cx, fig.cy, fig.h, fig.w))
 
-        figs = []
-        figs.extend(circles)
-        figs.extend(boxes)
         # collide figures with figures
         for idx1 in range(len(figs)):
             for idx2 in range(idx1):
@@ -373,28 +441,28 @@ class Painter:
                             0, 359.9, 2, 'green')
                         print ('collide Circle(%d, \n\
                               %d, \n\
-                              %d))' % (fig1.cx, fig1.cy, fig1.r))
+                              %d)' % (fig1.cx, fig1.cy, fig1.r))
                     else:
                         tk_draw_box(self.canvas, fig1, self.margin,\
                             2, 'blue')
                         print ('collide Box(%d, \n\
                               %d, \n\
                               %d, \n\
-                              %d))' % (fig1.cx, fig1.cy, fig1.h, fig1.w))
+                              %d)' % (fig1.cx, fig1.cy, fig1.h, fig1.w))
                     # 2
                     if isinstance(fig2, Circle):
                         tk_draw_arc(self.canvas, fig2, self.margin,\
                             0, 359.9, 2, 'green')
                         print ('with Circle(%d, \n\
                               %d, \n\
-                              %d))\n>>>>>' % (fig2.cx, fig2.cy, fig2.r))
+                              %d)\n>>>>>' % (fig2.cx, fig2.cy, fig2.r))
                     else:
                         tk_draw_box(self.canvas, fig2, self.margin,\
                             2, 'blue')
                         print ('with Box(%d, \n\
                               %d, \n\
                               %d, \n\
-                              %d))\n>>>>>' %\
+                              %d)\n>>>>>' %\
                               (fig2.cx, fig2.cy, fig2.h, fig2.w))
 
 def draw_painter(event):

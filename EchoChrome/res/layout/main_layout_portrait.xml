@@ -7,25 +7,16 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
-
+    
     <view
         android:id="@+id/view1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/view2"
-        class="com.echogames.echochrome.EchoChromeView" />
-
-    <view
-        android:id="@+id/view2"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
         android:layout_above="@+id/button1"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        class="com.echogames.echochrome.CommandBar" />
+        class="com.echogames.echochrome.EchoChromeView" />
 
     <Button
         android:id="@+id/button1"
@@ -34,7 +25,16 @@
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/view1"
         android:text="@string/cancel_but" />
+
+    <view
+        android:id="@+id/view2"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/view1"
+        android:layout_toRightOf="@+id/button1"
+        class="com.echogames.echochrome.CommandBar" />
 
 </RelativeLayout>

@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 
 public class MainActivity extends Activity {
 
@@ -17,6 +19,15 @@ public class MainActivity extends Activity {
 		{
 			setContentView(R.layout.main_layout_portrait);
 		}
+		
+        final Button button = (Button) findViewById(R.id.button1);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Perform action on click
+            	EchoChromeView tgt_v = ( EchoChromeView) findViewById(R.id.view1);
+            	tgt_v.releaseSelection();
+            }
+        });
 	}
 
 	@Override

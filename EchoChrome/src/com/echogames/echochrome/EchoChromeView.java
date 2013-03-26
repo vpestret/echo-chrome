@@ -4,6 +4,7 @@ package com.echogames.echochrome;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.v4.view.GestureDetectorCompat;
@@ -18,19 +19,23 @@ import android.widget.Scroller;
 public class EchoChromeView extends View {
     private static final String TAG = "EchoChromeView";
     
-    private static final float AXIS_X_MIN = -1f;
-    private static final float AXIS_X_MAX = 1f;
-    private static final float AXIS_Y_MIN = -1f;
-    private static final float AXIS_Y_MAX = 1f;
+    private float AXIS_X_MIN;
+    private float AXIS_X_MAX;
+    private float AXIS_Y_MIN;
+    private float AXIS_Y_MAX;
     
-	private RectF mCurrentViewport = new RectF(AXIS_X_MIN, AXIS_Y_MIN, AXIS_X_MAX/4, AXIS_Y_MAX/4);
+	private RectF mCurrentViewport;
     private Rect mContentRect = new Rect();
     private float mScale;
 	private Scroller mScroller;
     private Paint mDataPaint;
     private float mDataThickness = 2.0f;
     private int mDataColor = 0xff00aa00;
+    private int mSelColor = 0xffaa0000;
+    private int mCollideColor = 0xffaa00aa;
     private GestureDetectorCompat mGestureDetector;
+    private GameContext mGameContext;
+    private float mSelected = -1;
     
     public EchoChromeView(Context context) {
         this(context, null, 0);
@@ -52,6 +57,17 @@ public class EchoChromeView extends View {
         mDataPaint.setAntiAlias(true);
         
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
+        
+        mGameContext = new GameContext();
+        AXIS_X_MIN = 0f;
+        AXIS_X_MAX = mGameContext.getMapWidth();
+        AXIS_Y_MIN = 0f;
+        AXIS_Y_MAX = mGameContext.getMapHeight();
+        mGameContext.genRamdomUnits( 20, ( float) 0.05, ( float) 0.1);
+        
+        mCurrentViewport = new RectF(AXIS_X_MIN, AXIS_Y_MIN,
+					        		 AXIS_X_MIN + ( AXIS_X_MAX - AXIS_X_MIN) * 3 / 4,
+					        		 AXIS_Y_MIN + ( AXIS_Y_MAX - AXIS_Y_MIN) * 3 / 4);
     }
 
     @Override
@@ -79,8 +95,24 @@ public class EchoChromeView extends View {
         int clipRestoreCount = canvas.save();
         canvas.clipRect(mContentRect);
 
-    	canvas.drawCircle(-mCurrentViewport.left*mScale, -mCurrentViewport.top*mScale,
-    			          0.9f*AXIS_Y_MAX*mScale, mDataPaint);
+        int nUnits = mGameContext.mUnits.length;
+        for ( int idx = 0; idx < nUnits; idx++ )
+        {
+        	if ( idx == mSelected )
+        		mDataPaint.setColor(mSelColor);
+        	else if ( mGameContext.mUnitInCollision[ idx ] )
+        		mDataPaint.setColor(mCollideColor);
+        	else
+        		mDataPaint.setColor(mDataColor);
+        	
+        	float cx = ( mGameContext.mUnits[ idx ].cx - mCurrentViewport.left) * mScale;
+        	float cy = ( mGameContext.mUnits[ idx ].cy - mCurrentViewport.top) * mScale;
+        	float r =   mGameContext.mUnits[ idx ].r * mScale;
+        	double dir = ( double) mGameContext.mUnits[ idx ].dir;
+	    	canvas.drawCircle( cx, cy, r, mDataPaint);
+	    	canvas.drawLine( cx, cy, cx + ( float) Math.cos( dir) * r ,
+	    			         cy + ( float) Math.sin( dir) * r , mDataPaint);
+        }
 
         // Removes clipping rectangle
         canvas.restoreToCount(clipRestoreCount);
@@ -107,6 +139,39 @@ public class EchoChromeView extends View {
         return retVal || super.onTouchEvent(event);
     }
     
+    private boolean hitTest(float x, float y, PointF dest) {
+        if (!mContentRect.contains((int) x, (int) y)) {
+            return false;
+        }
+
+        dest.set( mCurrentViewport.left + x / mScale,
+                  mCurrentViewport.top  + y / mScale);
+        return true;
+     }
+    
+    private void updateSel(float x, float y) {
+    	PointF point = new PointF();
+    	if ( hitTest( x,y, point) && mSelected == -1)
+    	{
+    		x = point.x;
+    		y = point.y;
+    		mSelected = -1; // possible useless
+    		for (int i = 0; i < mGameContext.mUnits.length; i++) {
+    			float rad_sq = (x-mGameContext.mUnits[ i ].cx)*(x-mGameContext.mUnits[ i ].cx) +
+    					       (y-mGameContext.mUnits[ i ].cy)*(y-mGameContext.mUnits[ i ].cy);
+    			if ( rad_sq < mGameContext.mUnits[ i ].r*mGameContext.mUnits[ i ].r ) {
+    				mSelected = i;
+    			}
+    		}
+    	}
+    }
+    
+    public void releaseSelection()
+    {
+    	mSelected = -1;
+    	ViewCompat.postInvalidateOnAnimation(this);
+    }
+    
     /**
      * The gesture listener, used for handling simple gestures such as double touches, scrolls,
      * and flings.
@@ -123,6 +188,7 @@ public class EchoChromeView extends View {
         @Override     
         public boolean onSingleTapUp(MotionEvent e) {
         	Log.d(TAG, "onSingleTapUp: " + e.toString());
+        	updateSel(e.getX(), e.getY());
         	ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
         	return true;
         } 

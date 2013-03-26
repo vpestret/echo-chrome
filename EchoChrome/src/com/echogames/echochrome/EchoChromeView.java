@@ -18,12 +18,12 @@ import android.widget.Scroller;
 public class EchoChromeView extends View {
     private static final String TAG = "EchoChromeView";
     
-    private static final float AXIS_X_MIN = -1f;
-    private static final float AXIS_X_MAX = 1f;
-    private static final float AXIS_Y_MIN = -1f;
-    private static final float AXIS_Y_MAX = 1f;
+    private float AXIS_X_MIN;
+    private float AXIS_X_MAX;
+    private float AXIS_Y_MIN;
+    private float AXIS_Y_MAX;
     
-	private RectF mCurrentViewport = new RectF(AXIS_X_MIN, AXIS_Y_MIN, AXIS_X_MAX/4, AXIS_Y_MAX/4);
+	private RectF mCurrentViewport;
     private Rect mContentRect = new Rect();
     private float mScale;
 	private Scroller mScroller;
@@ -31,6 +31,7 @@ public class EchoChromeView extends View {
     private float mDataThickness = 2.0f;
     private int mDataColor = 0xff00aa00;
     private GestureDetectorCompat mGestureDetector;
+    private GameContext mGameContext;
     
     public EchoChromeView(Context context) {
         this(context, null, 0);
@@ -52,6 +53,16 @@ public class EchoChromeView extends View {
         mDataPaint.setAntiAlias(true);
         
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
+        
+        mGameContext = new GameContext();
+        AXIS_X_MIN = 0f;
+        AXIS_X_MAX = mGameContext.getMapWidth();
+        AXIS_Y_MIN = 0f;
+        AXIS_Y_MAX = mGameContext.getMapHeight();
+        
+        mCurrentViewport = new RectF(AXIS_X_MIN, AXIS_Y_MIN,
+					        		 AXIS_X_MIN + ( AXIS_X_MAX - AXIS_X_MIN) / 2,
+					        		 AXIS_Y_MIN + ( AXIS_Y_MAX - AXIS_Y_MIN) / 2);
     }
 
     @Override
@@ -79,8 +90,9 @@ public class EchoChromeView extends View {
         int clipRestoreCount = canvas.save();
         canvas.clipRect(mContentRect);
 
-    	canvas.drawCircle(-mCurrentViewport.left*mScale, -mCurrentViewport.top*mScale,
-    			          0.9f*AXIS_Y_MAX*mScale, mDataPaint);
+    	canvas.drawCircle(((AXIS_X_MAX+AXIS_X_MIN)/2-mCurrentViewport.left)*mScale,
+    			          ((AXIS_Y_MAX+AXIS_Y_MIN)/2-mCurrentViewport.top)*mScale,
+    			          0.9f*(AXIS_Y_MAX-AXIS_Y_MIN)/2*mScale, mDataPaint);
 
         // Removes clipping rectangle
         canvas.restoreToCount(clipRestoreCount);

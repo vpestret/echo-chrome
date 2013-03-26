@@ -4,5 +4,6 @@
     <string name="app_name">EchoChrome</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="cancel_but">C</string>
 
 </resources>

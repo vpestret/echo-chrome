@@ -101,7 +101,8 @@ public class Unit extends RectEntity {
     		}
             out_ratio[0] = 1f;
             return true;
-		} else {
+		} else
+		{
 			throw new CollisionException("collides of Unit other than ones with Shoot" +
 					" or with Unit" +
                     " or with Obstacle" +

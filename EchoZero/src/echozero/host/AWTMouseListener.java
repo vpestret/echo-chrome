@@ -4,28 +4,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
-import echozero.util.Program;
+import echozero.ui.GameInput;
 
 public class AWTMouseListener extends MouseAdapter {
-		private AWTInput m_inp;
+		private GameInput m_inp;
 	
-		public AWTMouseListener(AWTInput inp) { 
+		public AWTMouseListener(GameInput inp) { 
 			m_inp = inp;
-			Program.log.log_message(0, "mouse_listener is constructed with " + m_inp.toString() + " = " + this.toString());
-		}
-		
-		public void mouseClicked(MouseEvent e) {
-			int x;
-			int y;
-			int c;
-			int b;
-
-			x = e.getX();
-			y = e.getY();
-			b = e.getButton();
-			c = e.getClickCount();
-			
-			Program.log.log_message(0, "mouse button " + b + " is clicked " + c + " times at " + x + ", " + y);			
 		}
 		
 		public void mouseMoved(MouseEvent e) {
@@ -34,8 +19,7 @@ public class AWTMouseListener extends MouseAdapter {
 
 			x = e.getX();
 			y = e.getY();
-			
-			Program.log.log_message(0, "mouse is moved at " + x + ", " + y);			
+			m_inp.mouse_moved_to(System.nanoTime(), x, y);
 		}
 		
 		public void mousePressed(MouseEvent e) {
@@ -46,8 +30,7 @@ public class AWTMouseListener extends MouseAdapter {
 			x = e.getX();
 			y = e.getY();
 			b = e.getButton();
-			//but = (b == e.BUTTON1) ? "1" : (b == e.BUTTON2) ? "2" : (b == e.BUTTON3) ? "3" : "UNKNOWN";
-			Program.log.log_message(0, "mouse button " + b + " is pressed at " + x + ", " + y);
+			m_inp.mouse_key_dn(System.nanoTime(), x, y, b);
 		}
 
 		public void mouseReleased(MouseEvent e) {
@@ -58,14 +41,17 @@ public class AWTMouseListener extends MouseAdapter {
 			x = e.getX();
 			y = e.getY();
 			b = e.getButton();
-			//but = (b == e.BUTTON1) ? "1" : (b == e.BUTTON2) ? "2" : (b == e.BUTTON3) ? "3" : "UNKNOWN";
-			Program.log.log_message(0, "button " + b + " is pressed at " + x + ", " + y);	
+			m_inp.mouse_key_up(System.nanoTime(), x, y, b);
 		}
 		
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			int rot;
-			
+			int x;
+			int y;
+
+			x = e.getX();
+			y = e.getY();
 			rot = e.getWheelRotation();
-			Program.log.log_message(0, "wheel: " + rot);
+			m_inp.mouse_wheel(System.nanoTime(), x, y, rot);
 		}
 }

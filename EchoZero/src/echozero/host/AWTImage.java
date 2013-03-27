@@ -47,7 +47,7 @@ public class AWTImage implements GameImage {
         		gd.setFullScreenWindow(m_frame);
         	} else {
         		m_frame = new Frame("-)cho Chrom(-");
-        		m_frame.setSize(1024, 600);
+        		m_frame.setSize(1600, 1200);
         		m_frame.setVisible(true);
         		m_frame.addWindowListener(new AWTWindowListener());
         	}
@@ -78,13 +78,21 @@ public class AWTImage implements GameImage {
 	}
 	
 	public void switch_buffers() {
+		m_current.dispose();		
         m_buffer.show();
-		m_current.dispose();
 	}
 
 	public void clear_all() {
-        m_current.setColor(Color.darkGray);
-        m_current.fillRect(0, 0, m_bounds.width, m_bounds.height);
+        m_current.clearRect(0, 0, m_bounds.width, m_bounds.width);
+        m_current.translate(m_bounds.width / 2, m_bounds.height / 2);
+	}
+	
+	public void set_color(double r, double g, double b, double a) {
+		m_current.setColor(new Color((float)r, (float)g, (float)b, (float)a));
+	}
+	
+	public void circle(int x, int y, int rad) {
+		m_current.drawArc(x - rad, y - rad, 2 * rad, 2 * rad, 0, 359);
 	}
 	
 	public Frame get_frame() { return m_frame; }

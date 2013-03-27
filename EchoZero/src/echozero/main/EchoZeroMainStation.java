@@ -3,6 +3,7 @@ package echozero.main;
 import echozero.host.AWTImage;
 import echozero.host.AWTInput;
 import echozero.ui.GameUI;
+import echozero.ui.GameUIInput;
 import echozero.util.Program;
 
 public class EchoZeroMainStation {
@@ -19,9 +20,11 @@ public class EchoZeroMainStation {
 		Program.log.log_message(-1, "-)cho Chrom(-");
 		
 		try {
+			GameUIInput ginp;
+			
 			ai = new AWTImage(true);
-			gui = new GameUI(ai);
-			new AWTInput(ai.get_frame(), gui);
+			gui = new GameUI(ai);			
+			new AWTInput(ai.get_frame(), new GameUIInput(gui));
 		
 			gui.loop();			
 		}

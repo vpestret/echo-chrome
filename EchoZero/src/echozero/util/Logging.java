@@ -26,6 +26,11 @@ public class Logging {
 	
 	public void set_log_level(int lvl) { if(lvl >= 0) { m_log_level = lvl; } }
 	
+	public void error(String msg) {
+		log_message(-1, "*** ERROR ***: " + msg);
+		System.exit(-1);
+	}
+	
 	public void log_message(int lvl, String msg) {
 		long dt;
 		

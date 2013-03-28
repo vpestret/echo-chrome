@@ -35,10 +35,6 @@ public class GameUI {
 	
 	public void render() {
 		m_gi.clear_all();
-		m_gi.set_color(1, 0, 0, 0.5);
-		m_gi.circle(m_x, m_y, 100);
-		m_gi.set_color(0, 0, 1, 0.5);
-		m_gi.circle(m_x, m_y, 50);
 	}
 	
 	public void loop() {
@@ -58,6 +54,9 @@ public class GameUI {
 			if(m_scroll[GameUI.Direction.DIR_DOWN] && !m_scroll[GameUI.Direction.DIR_UP]) 		{ m_y += sc; }		
 			if(m_scroll[GameUI.Direction.DIR_LEFT] && !m_scroll[GameUI.Direction.DIR_RIGHT]) 	{ m_x -= sc; }
 			if(m_scroll[GameUI.Direction.DIR_RIGHT] && !m_scroll[GameUI.Direction.DIR_LEFT]) 	{ m_x += sc; }
+			
+			try { Thread.sleep(10); } // 100 FPS
+			catch(Exception e) {}
 		}
 	}
 }

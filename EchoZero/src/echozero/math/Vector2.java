@@ -7,4 +7,6 @@ public class Vector2 {
 		m_x = new double[2];
 		m_x[0] = x; m_x[1] = y;
 	}
+	
+	public double[] get_x() { return m_x; }
 }

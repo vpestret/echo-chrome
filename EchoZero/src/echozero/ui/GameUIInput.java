@@ -22,7 +22,7 @@ public class GameUIInput extends GameInputAdapter {
 			case KEY_RIGHT: 	m_gu.set_scroll(GameUI.Direction.DIR_RIGHT, false); break;
 		}
 		
-		//Program.log.log_message(0, "key up: " + keycode + " @ " + time);
+		Program.log.log_message(0, "key up: " + keycode + " @ " + time);
 	}
 	
 	public void key_dn(long time, int keycode) {
@@ -33,6 +33,6 @@ public class GameUIInput extends GameInputAdapter {
 			case KEY_RIGHT: 	m_gu.set_scroll(GameUI.Direction.DIR_RIGHT, true); break;
 		}
 		
-		//Program.log.log_message(0, "key dn: " + keycode + " @ " + time);
+		Program.log.log_message(0, "key dn: " + keycode + " @ " + time);
 	}
 }

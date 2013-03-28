@@ -19,23 +19,27 @@ public class EchoZeroMainStation {
 		
 		
 		Program.initialize_logging("application.log");
-		Program.log.log_message(-1, "-)cho Chrom(-");
+		Program.log.log_message(-1, "-)cho Chrom(-" + " " + Program.get_version());
 		
+		gui = null;
 		try {
-			GameUIInput ginp;
-			
 			ai = new AWTImage(true);
 			gui = new GameUI(new EchoGraphicsEngine(ai));
-			
 			new AWTInput(ai.get_frame(), new GameUIInput(gui));
-		
-			gui.loop();			
 		}
 		
 		catch(Exception e) {
-			System.err.println("error initializing global parameters");
+			System.err.println("error initializing global parameters: " + e.getMessage());
 			System.exit(-1);
 		}
+		
+		try {
+			gui.loop();
+		}
+		catch(Exception e) {
+			System.err.println("exception during run: " + e.getMessage());
+			System.exit(-1);
+		}		
 	}
 
 }

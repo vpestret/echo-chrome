@@ -14,6 +14,7 @@ import java.awt.image.BufferStrategy;
 import java.io.IOException;
 
 import echozero.graphics.HostGraphics;
+import echozero.graphics.HostGraphicsCapabilities;
 import echozero.util.Program;
 
 class AWTWindowListener extends WindowAdapter {
@@ -72,6 +73,10 @@ public class AWTImage implements HostGraphics {
     public AWTImage() throws IOException {
     	this(true);
     }
+    
+    public HostGraphicsCapabilities get_caps() {
+    	return new HostGraphicsCapabilities(m_bounds.width, m_bounds.height);
+    }
                 
 	public void set_current_buffer() { 
 		m_current = m_buffer.getDrawGraphics();
@@ -85,7 +90,6 @@ public class AWTImage implements HostGraphics {
 
 	public void clear_all() {
         m_current.clearRect(0, 0, m_bounds.width, m_bounds.width);
-        m_current.translate(m_bounds.width / 2, m_bounds.height / 2);
 	}
 	
 	public void set_color(double r, double g, double b, double a) {
@@ -98,10 +102,6 @@ public class AWTImage implements HostGraphics {
 	
 	public void rect(int x1, int y1, int x2, int y2) {
 		m_current.drawRect(x1,  x1, x2 - x1, y2 - y1);
-	}
-	
-	public void circle(int x, int y, int rad) {
-		m_current.drawArc(x - rad, y - rad, 2 * rad, 2 * rad, 0, 359);
 	}
 	
 	public Frame get_frame() { return m_frame; }

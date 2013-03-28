@@ -3,8 +3,10 @@ package echozero.math;
 public class Matrix3 {
 	private double[] m_a;
 	
-	public Matrix3() { m_a = new double[9]; }
+	public Matrix3() { m_a = new double[9]; load_identity(); }
 
+	public double[] get_a() { return m_a; }
+	
 	public Matrix3(Matrix3 m) {
 		this();
 		int i;
@@ -18,10 +20,10 @@ public class Matrix3 {
 		m_a[6] = 0; m_a[7] = 0; m_a[8] = 1;
 	}
 	
-	public void scale(double s) {
-		int i;
-		
-		for(i = 0; i < 9; ++i) { m_a[i] *= s; }
+	public void scale(double sx, double sy) {
+		m_a[0] = sx; m_a[1] = 0; m_a[2] = 0;
+		m_a[3] = 0; m_a[4] = sy; m_a[5] = 0;
+		m_a[6] = 0; m_a[7] = 0; m_a[8] = 1;
 	}
 	
 	public void translate_rotate(double alpha, double dx, double dy) {
@@ -38,14 +40,12 @@ public class Matrix3 {
 	public void translate_rotate_scale(double scale, double alpha, double dx, double dy) {
 		double cs;
 		double sn;
-		int i;
 		
 		cs = Math.cos(alpha);
 		sn = Math.sin(alpha);
 		m_a[0] = cs; m_a[1] = -sn; m_a[2] = -dx;
 		m_a[3] = sn; m_a[4] = cs; m_a[5] = -dy;
-		m_a[6] = 0; m_a[7] = 0; m_a[8] = 1;
-		for(i = 0; i < 9; ++i) { m_a[i] *= scale; }
+		m_a[6] = 0; m_a[7] = 0; m_a[8] = 1 / scale;
 	}
 	
 	
@@ -96,4 +96,24 @@ public class Matrix3 {
 		multiply(m_a, m.m_a, c);
 		m_a = c;
 	}
+	
+	public void multiply_vector3(Matrix3 m, double v[], double r[]) {
+		r[0] = m_a[0] * v[0] + m_a[1] * v[1] + m_a[2] * v[2];
+		r[1] = m_a[3] * v[0] + m_a[4] * v[1] + m_a[5] * v[2];
+		r[2] = m_a[6] * v[0] + m_a[7] * v[1] + m_a[8] * v[2];
+	}
+	
+	public Vector2 multiply_vector2h(Vector2 vec) {
+		double z;
+		double r1;
+		double r2;
+		double[] v;
+		
+		v = vec.get_x();
+		r1 = m_a[0] * v[0] + m_a[1] * v[1] + m_a[2];
+		r2 = m_a[3] * v[0] + m_a[4] * v[1] + m_a[5];
+		z = m_a[6] * v[0] + m_a[7] * v[1] + m_a[8];
+		return new Vector2(r1 / z, r2 / z);
+	}
+	
 }

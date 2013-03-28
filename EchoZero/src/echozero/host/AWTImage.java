@@ -13,7 +13,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.io.IOException;
 
-import echozero.ui.GameImage;
+import echozero.graphics.HostGraphics;
 import echozero.util.Program;
 
 class AWTWindowListener extends WindowAdapter {
@@ -25,7 +25,7 @@ class AWTWindowListener extends WindowAdapter {
 	} 
 }
 
-public class AWTImage implements GameImage {
+public class AWTImage implements HostGraphics {
 	private Frame m_frame;
 	private Rectangle m_bounds;
 	private BufferStrategy m_buffer;
@@ -73,8 +73,9 @@ public class AWTImage implements GameImage {
     	this(true);
     }
                 
-	public void set_current_buffer() {
+	public void set_current_buffer() { 
 		m_current = m_buffer.getDrawGraphics();
+		
 	}
 	
 	public void switch_buffers() {
@@ -89,6 +90,14 @@ public class AWTImage implements GameImage {
 	
 	public void set_color(double r, double g, double b, double a) {
 		m_current.setColor(new Color((float)r, (float)g, (float)b, (float)a));
+	}
+	
+	public void line(int x1, int y1, int x2, int y2) {
+		m_current.drawLine(x1, y1, x2, y2);
+	}
+	
+	public void rect(int x1, int y1, int x2, int y2) {
+		m_current.drawRect(x1,  x1, x2 - x1, y2 - y1);
 	}
 	
 	public void circle(int x, int y, int rad) {

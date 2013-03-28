@@ -1,6 +1,6 @@
-package echozero.ui;
+package echozero.graphics;
 
-public interface GameImage {
+public interface HostGraphics {
 	public void set_current_buffer();
 	public void switch_buffers();
 	

@@ -1,5 +1,6 @@
 package echozero.main;
 
+import echozero.graphics.EchoGraphicsEngine;
 import echozero.host.AWTImage;
 import echozero.host.AWTInput;
 import echozero.ui.GameUI;
@@ -13,6 +14,7 @@ public class EchoZeroMainStation {
 	 */
 	public static void main(String[] args) {
 		AWTImage ai;
+		
 		GameUI gui;
 		
 		
@@ -23,7 +25,8 @@ public class EchoZeroMainStation {
 			GameUIInput ginp;
 			
 			ai = new AWTImage(true);
-			gui = new GameUI(ai);			
+			gui = new GameUI(new EchoGraphicsEngine(ai));
+			
 			new AWTInput(ai.get_frame(), new GameUIInput(gui));
 		
 			gui.loop();			

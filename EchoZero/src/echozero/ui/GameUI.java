@@ -2,38 +2,62 @@ package echozero.ui;
 
 import java.awt.Graphics;
 
+import echozero.graphics.EchoGraphicsEngine;
 import echozero.util.Program;
 
 public class GameUI {
-	private GameImage m_gi;
+	
+	public class Direction {
+		public static final int DIR_UP = 0;
+		public static final int DIR_DOWN = 1;
+		public static final int DIR_LEFT = 2;
+		public static final int DIR_RIGHT = 3;
+	}
+	
+	private EchoGraphicsEngine m_gi;
 	private GameUIInput m_input;
 	private boolean m_exit;
+	private boolean[] m_scroll;
 	
-	public GameUI(GameImage gi) {
+	private int m_x;
+	private int m_y;
+	
+	public GameUI(EchoGraphicsEngine gi) {
 		m_gi = gi;
 		m_input = new GameUIInput(this);
 		m_exit = false;
+		m_scroll = new boolean[4];
+	}
+	
+	public void set_scroll(int dir, boolean value) {
+		m_scroll[dir] = value;
 	}
 	
 	public void render() {
 		m_gi.clear_all();
 		m_gi.set_color(1, 0, 0, 0.5);
-		m_gi.circle(0, 0, 100);
+		m_gi.circle(m_x, m_y, 100);
 		m_gi.set_color(0, 0, 1, 0.5);
-		m_gi.circle(0, 0, 50);
+		m_gi.circle(m_x, m_y, 50);
 	}
 	
 	public void loop() {
 		long dt;
 		
 		while(!m_exit) {
+			double sc;
+			
 			dt = -System.nanoTime();
 			m_gi.set_current_buffer();
 			render();
 			m_gi.switch_buffers();
 			dt += System.nanoTime();
-			try { Thread.sleep(10); } // sleep for 10 ms
-			catch (InterruptedException e) {}
+			
+			sc = dt / 1e9 * 100.0;
+			if(m_scroll[GameUI.Direction.DIR_UP] && !m_scroll[GameUI.Direction.DIR_DOWN]) 		{ m_y -= sc; }
+			if(m_scroll[GameUI.Direction.DIR_DOWN] && !m_scroll[GameUI.Direction.DIR_UP]) 		{ m_y += sc; }		
+			if(m_scroll[GameUI.Direction.DIR_LEFT] && !m_scroll[GameUI.Direction.DIR_RIGHT]) 	{ m_x -= sc; }
+			if(m_scroll[GameUI.Direction.DIR_RIGHT] && !m_scroll[GameUI.Direction.DIR_LEFT]) 	{ m_x += sc; }
 		}
 	}
 }

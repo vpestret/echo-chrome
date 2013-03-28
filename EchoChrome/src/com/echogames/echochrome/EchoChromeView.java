@@ -19,6 +19,7 @@ import android.widget.Scroller;
 public class EchoChromeView extends View {
     private static final String TAG = "EchoChromeView";
     
+    private float MAX_POLE_RATIO = 0.25f;
     private float AXIS_X_MIN;
     private float AXIS_X_MAX;
     private float AXIS_Y_MIN;
@@ -33,9 +34,12 @@ public class EchoChromeView extends View {
     private int mDataColor = 0xff00aa00;
     private int mSelColor = 0xffaa0000;
     private int mCollideColor = 0xffaa00aa;
+    private int mPoleColor = 0xff808080;
     private GestureDetectorCompat mGestureDetector;
     private GameContext mGameContext;
     private float mSelected = -1;
+    private float mPoleW = 0f;
+    private float mPoleH = 0f;
     
     public EchoChromeView(Context context) {
         this(context, null, 0);
@@ -91,6 +95,8 @@ public class EchoChromeView extends View {
         mCurrentViewport.right = AXIS_X_MIN + mCurrentViewport.width();
         mCurrentViewport.left = AXIS_X_MIN;
         mScale = mContentRect.height()/mCurrentViewport.height();
+        mPoleW = MAX_POLE_RATIO * mCurrentViewport.width();
+        mPoleH = MAX_POLE_RATIO * mCurrentViewport.height();
     }
     
     @Override
@@ -123,6 +129,43 @@ public class EchoChromeView extends View {
                                  cy + ( float) Math.sin( dir) * r , mDataPaint);
             }
         }
+        
+        float poleLeft = AXIS_X_MIN - mCurrentViewport.left;
+        float poleRight = mCurrentViewport.right - AXIS_X_MAX;
+        float poleTop = AXIS_Y_MIN - mCurrentViewport.top;
+        float poleBottom = mCurrentViewport.bottom - AXIS_Y_MAX;
+        
+        if ( poleLeft > 0 )
+        {
+            mDataPaint.setColor( mPoleColor);
+            mDataPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect( mContentRect.left, mContentRect.top, mContentRect.left + poleLeft * mScale, mContentRect.bottom, mDataPaint);
+            mDataPaint.setStyle(Paint.Style.STROKE);
+        }
+        
+        if ( poleRight > 0 )
+        {
+            mDataPaint.setColor( mPoleColor);
+            mDataPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect( mContentRect.right - poleRight * mScale, mContentRect.top, mContentRect.right, mContentRect.bottom, mDataPaint);
+            mDataPaint.setStyle(Paint.Style.STROKE);
+        }
+        
+        if ( poleTop > 0 )
+        {
+            mDataPaint.setColor( mPoleColor);
+            mDataPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect( mContentRect.left, mContentRect.top, mContentRect.right, mContentRect.top + poleTop * mScale, mDataPaint);
+            mDataPaint.setStyle(Paint.Style.STROKE);
+        }
+        
+        if ( poleBottom > 0 )
+        {
+            mDataPaint.setColor( mPoleColor);
+            mDataPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect( mContentRect.left, mContentRect.bottom - poleBottom * mScale, mContentRect.right, mContentRect.bottom, mDataPaint);
+            mDataPaint.setStyle(Paint.Style.STROKE);
+        }
 
         // Removes clipping rectangle
         canvas.restoreToCount(clipRestoreCount);
@@ -131,8 +174,9 @@ public class EchoChromeView extends View {
     private void setViewportBottomLeft(float x, float y) {
         float curWidth = mCurrentViewport.width();
         float curHeight = mCurrentViewport.height();
-        x = Math.max(AXIS_X_MIN, Math.min(x, AXIS_X_MAX - curWidth));
-        y = Math.max(AXIS_Y_MIN + curHeight, Math.min(y, AXIS_Y_MAX));
+        
+        x = Math.max(AXIS_X_MIN - mPoleW, Math.min(x, AXIS_X_MAX + mPoleW - curWidth));
+        y = Math.max(AXIS_Y_MIN - mPoleH + curHeight, Math.min(y, AXIS_Y_MAX + mPoleH));
 
         mCurrentViewport.set(x, y - curHeight, x + curWidth, y);
         ViewCompat.postInvalidateOnAnimation(this);

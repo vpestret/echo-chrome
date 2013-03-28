@@ -119,11 +119,6 @@ public class EchoChromeView extends View {
     }        
 
     private void setViewportBottomLeft(float x, float y) {
-        /**
-         * Constrains within the scroll range. The scroll range is simply the viewport extremes
-         * (AXIS_X_MAX, etc.) minus the viewport size. For example, if the extrema were 0 and 10,
-         * and the viewport size was 2, the scroll range would be 0 to 8.
-         */
         float curWidth = mCurrentViewport.width();
         float curHeight = mCurrentViewport.height();
         x = Math.max(AXIS_X_MIN, Math.min(x, AXIS_X_MAX - curWidth));
@@ -172,10 +167,6 @@ public class EchoChromeView extends View {
     	ViewCompat.postInvalidateOnAnimation(this);
     }
     
-    /**
-     * The gesture listener, used for handling simple gestures such as double touches, scrolls,
-     * and flings.
-     */
     private final GestureDetector.SimpleOnGestureListener mGestureListener
             = new GestureDetector.SimpleOnGestureListener() {
         @Override
@@ -195,18 +186,9 @@ public class EchoChromeView extends View {
         
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            // Scrolling uses math based on the viewport (as opposed to math using pixels).
-            /**
-             * Pixel offset is the offset in screen pixels, while viewport offset is the
-             * offset within the current viewport. For additional information on surface sizes
-             * and pixel offsets, see the docs for {@link computeScrollSurfaceSize()}. For
-             * additional information about the viewport, see the comments for
-             * {@link mCurrentViewport}.
-             */
-            float viewportOffsetX = distanceX * mCurrentViewport.width() / mContentRect.width();
-            float viewportOffsetY = distanceY * mCurrentViewport.height() / mContentRect.height();
-            setViewportBottomLeft( mCurrentViewport.left + viewportOffsetX,
-                                   mCurrentViewport.bottom + viewportOffsetY);
+        	// So convert from pixels to view coordinates
+            setViewportBottomLeft( mCurrentViewport.left + distanceX / mScale,
+                                   mCurrentViewport.bottom + distanceY / mScale);
 
             return true;
         }

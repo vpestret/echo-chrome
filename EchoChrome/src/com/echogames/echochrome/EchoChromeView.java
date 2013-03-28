@@ -90,10 +90,20 @@ public class EchoChromeView extends View {
                 getWidth() - getPaddingRight(),
                 getHeight() - getPaddingBottom());
         // make same proportions as for content rectangle to maintain circle shape
-        mCurrentViewport.top  = AXIS_Y_MIN;
-        mCurrentViewport.bottom = AXIS_Y_MIN + mCurrentViewport.width()*mContentRect.height()/mContentRect.width();
-        mCurrentViewport.right = AXIS_X_MIN + mCurrentViewport.width();
-        mCurrentViewport.left = AXIS_X_MIN;
+        float cvpW  = mCurrentViewport.width();
+        if ( mGameContext != null )
+        {
+            mCurrentViewport.top  = mGameContext.mCurrentViewport.top;
+            mCurrentViewport.left = mGameContext.mCurrentViewport.left;
+            cvpW = mGameContext.mCurrentViewport.width();
+        } else
+        {
+            mCurrentViewport.top  = AXIS_Y_MIN;
+            mCurrentViewport.left = AXIS_X_MIN;
+        }
+        mCurrentViewport.bottom = mCurrentViewport.top + cvpW*mContentRect.height()/mContentRect.width();
+        mCurrentViewport.right = mCurrentViewport.left + cvpW;
+        
         mScale = mContentRect.height()/mCurrentViewport.height();
         mPoleW = MAX_POLE_RATIO * mCurrentViewport.width();
         mPoleH = MAX_POLE_RATIO * mCurrentViewport.height();
@@ -246,6 +256,11 @@ public class EchoChromeView extends View {
             // So convert from pixels to view coordinates
             setViewportBottomLeft( mCurrentViewport.left + distanceX / mScale,
                                    mCurrentViewport.bottom + distanceY / mScale);
+            
+            if ( mGameContext != null )
+            {
+                mGameContext.mCurrentViewport.set(mCurrentViewport.left, mCurrentViewport.top, mCurrentViewport.right, mCurrentViewport.bottom);
+            }
 
             return true;
         }

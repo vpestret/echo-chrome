@@ -1,5 +1,6 @@
 package com.echogames.echochrome;
 
+import android.graphics.RectF;
 import android.util.Log;
 
 
@@ -10,6 +11,8 @@ public class GameContext {
     private float mMapHeight = 2.0f;
     public Unit [] mUnits;
     public boolean [] mUnitInCollision;
+    public RectF mCurrentViewport = new RectF( 0f, 0f, mMapWidth * 3 / 4, mMapHeight * 3 / 4);
+    
     public float getMapWidth()
     {
         return mMapWidth;

@@ -58,18 +58,25 @@ public class EchoChromeView extends View {
         
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
         
-        mGameContext = new GameContext();
+        // default values will be overwritten by setGameContext
         AXIS_X_MIN = 0f;
-        AXIS_X_MAX = mGameContext.getMapWidth();
+        AXIS_X_MAX = 1f;
         AXIS_Y_MIN = 0f;
-        AXIS_Y_MAX = mGameContext.getMapHeight();
-        mGameContext.genRamdomUnits( 20, ( float) 0.05, ( float) 0.1);
+        AXIS_Y_MAX = 1f;
         
         mCurrentViewport = new RectF(AXIS_X_MIN, AXIS_Y_MIN,
 					        		 AXIS_X_MIN + ( AXIS_X_MAX - AXIS_X_MIN) * 3 / 4,
 					        		 AXIS_Y_MIN + ( AXIS_Y_MAX - AXIS_Y_MIN) * 3 / 4);
     }
-
+    
+    public void setGameContext( GameContext gc) {
+    	mGameContext = gc;
+        AXIS_X_MIN = 0f;
+        AXIS_X_MAX = mGameContext.getMapWidth();
+        AXIS_Y_MIN = 0f;
+        AXIS_Y_MAX = mGameContext.getMapHeight();
+    }
+    
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -95,23 +102,26 @@ public class EchoChromeView extends View {
         int clipRestoreCount = canvas.save();
         canvas.clipRect(mContentRect);
 
-        int nUnits = mGameContext.mUnits.length;
-        for ( int idx = 0; idx < nUnits; idx++ )
+        if ( mGameContext != null )
         {
-        	if ( idx == mSelected )
-        		mDataPaint.setColor(mSelColor);
-        	else if ( mGameContext.mUnitInCollision[ idx ] )
-        		mDataPaint.setColor(mCollideColor);
-        	else
-        		mDataPaint.setColor(mDataColor);
-        	
-        	float cx = ( mGameContext.mUnits[ idx ].cx - mCurrentViewport.left) * mScale;
-        	float cy = ( mGameContext.mUnits[ idx ].cy - mCurrentViewport.top) * mScale;
-        	float r =   mGameContext.mUnits[ idx ].r * mScale;
-        	double dir = ( double) mGameContext.mUnits[ idx ].dir;
-	    	canvas.drawCircle( cx, cy, r, mDataPaint);
-	    	canvas.drawLine( cx, cy, cx + ( float) Math.cos( dir) * r ,
-	    			         cy + ( float) Math.sin( dir) * r , mDataPaint);
+	        int nUnits = mGameContext.mUnits.length;
+	        for ( int idx = 0; idx < nUnits; idx++ )
+	        {
+	        	if ( idx == mSelected )
+	        		mDataPaint.setColor(mSelColor);
+	        	else if ( mGameContext.mUnitInCollision[ idx ] )
+	        		mDataPaint.setColor(mCollideColor);
+	        	else
+	        		mDataPaint.setColor(mDataColor);
+	        	
+	        	float cx = ( mGameContext.mUnits[ idx ].cx - mCurrentViewport.left) * mScale;
+	        	float cy = ( mGameContext.mUnits[ idx ].cy - mCurrentViewport.top) * mScale;
+	        	float r =   mGameContext.mUnits[ idx ].r * mScale;
+	        	double dir = ( double) mGameContext.mUnits[ idx ].dir;
+		    	canvas.drawCircle( cx, cy, r, mDataPaint);
+		    	canvas.drawLine( cx, cy, cx + ( float) Math.cos( dir) * r ,
+		    			         cy + ( float) Math.sin( dir) * r , mDataPaint);
+	        }
         }
 
         // Removes clipping rectangle
@@ -151,13 +161,16 @@ public class EchoChromeView extends View {
     		x = point.x;
     		y = point.y;
     		mSelected = -1; // possible useless
-    		for (int i = 0; i < mGameContext.mUnits.length; i++) {
-    			float rad_sq = (x-mGameContext.mUnits[ i ].cx)*(x-mGameContext.mUnits[ i ].cx) +
-    					       (y-mGameContext.mUnits[ i ].cy)*(y-mGameContext.mUnits[ i ].cy);
-    			if ( rad_sq < mGameContext.mUnits[ i ].r*mGameContext.mUnits[ i ].r ) {
-    				mSelected = i;
-    			}
-    		}
+            if ( mGameContext != null )
+            {
+	    		for (int i = 0; i < mGameContext.mUnits.length; i++) {
+	    			float rad_sq = (x-mGameContext.mUnits[ i ].cx)*(x-mGameContext.mUnits[ i ].cx) +
+	    					       (y-mGameContext.mUnits[ i ].cy)*(y-mGameContext.mUnits[ i ].cy);
+	    			if ( rad_sq < mGameContext.mUnits[ i ].r*mGameContext.mUnits[ i ].r ) {
+	    				mSelected = i;
+	    			}
+	    		}
+            }
     	}
     }
     

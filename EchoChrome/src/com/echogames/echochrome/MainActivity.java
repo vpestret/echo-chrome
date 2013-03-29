@@ -3,17 +3,20 @@ package com.echogames.echochrome;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends Activity {
+    private static final String TAG = "MainActivity";
 
     private GameContext mGameContext;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         if ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
         {
             setContentView(R.layout.main_layout);
@@ -32,11 +35,28 @@ public class MainActivity extends Activity {
         });
         
         mGameContext = new GameContext();
-        mGameContext.genRamdomUnits( 20, ( float) 0.05, ( float) 0.1);
+        if ( savedInstanceState == null )
+        { 
+            mGameContext.genRamdomUnits( 20, ( float) 0.05, ( float) 0.1);
+            Log.d( TAG, "Units are generated");
+        } else
+        {
+            mGameContext.restoreState( savedInstanceState); 
+            Log.d( TAG, "State is restored");
+        }
+        
         final EchoChromeView ec_view = (EchoChromeView) findViewById(R.id.view1);
         ec_view.setGameContext( mGameContext);
     }
+    
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
 
+        mGameContext.saveState( savedInstanceState);
+        Log.d( TAG, "State is saved");
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

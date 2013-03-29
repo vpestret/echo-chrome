@@ -1,6 +1,7 @@
 package com.echogames.echochrome;
 
 import android.graphics.RectF;
+import android.os.Bundle;
 import android.util.Log;
 
 
@@ -9,9 +10,56 @@ public class GameContext {
 
     private float mMapWidth = 2.0f;
     private float mMapHeight = 2.0f;
+    public float mScale = 0f;
     public Unit [] mUnits;
     public boolean [] mUnitInCollision;
     public RectF mCurrentViewport = new RectF( 0f, 0f, mMapWidth * 3 / 4, mMapHeight * 3 / 4);
+    
+    public void restoreState( Bundle savedInstanceState)
+    {
+        mMapWidth = savedInstanceState.getFloat( "mMapWidth");
+        mMapHeight = savedInstanceState.getFloat( "mMapHeight");
+        mScale = savedInstanceState.getFloat( "mScale");
+        int nUnits = savedInstanceState.getInt( "nUnits");
+        mUnits = new Unit[ nUnits ];
+        for ( int idx = 0; idx < nUnits; idx++ )
+        {
+            mUnits[ idx ] = new Unit(
+                    savedInstanceState.getFloat( "Unit" + idx + "cx"),
+                    savedInstanceState.getFloat( "Unit" + idx + "cy"),
+                    savedInstanceState.getFloat( "Unit" + idx + "r"),
+                    savedInstanceState.getFloat( "Unit" + idx + "dir"));
+
+        }
+        mUnitInCollision = savedInstanceState.getBooleanArray( "mUnitInCollision");
+        mCurrentViewport = new RectF(
+            savedInstanceState.getFloat( "mCurrentViewportLeft"),
+            savedInstanceState.getFloat( "mCurrentViewportTop"),
+            savedInstanceState.getFloat( "mCurrentViewportRight"),
+            savedInstanceState.getFloat( "mCurrentViewportBottom"));
+    }
+    
+    public void saveState( Bundle targetInstanceState)
+    {
+        targetInstanceState.putFloat( "mMapWidth", mMapWidth);
+        targetInstanceState.putFloat( "mMapHeight", mMapHeight);
+        targetInstanceState.putFloat( "mScale", mScale);
+        int nUnits = mUnits.length;
+        targetInstanceState.putInt( "nUnits", nUnits);
+        for ( int idx = 0; idx < nUnits; idx++ )
+        {
+            targetInstanceState.putFloat( "Unit" + idx + "cx", mUnits[ idx ].cx);
+            targetInstanceState.putFloat( "Unit" + idx + "cy", mUnits[ idx ].cy);
+            targetInstanceState.putFloat( "Unit" + idx + "r", mUnits[ idx ].r);
+            targetInstanceState.putFloat( "Unit" + idx + "dir", mUnits[ idx ].dir);
+            
+        }
+        targetInstanceState.putBooleanArray( "mUnitInCollision", mUnitInCollision);
+        targetInstanceState.putFloat( "mCurrentViewportLeft", mCurrentViewport.left);
+        targetInstanceState.putFloat( "mCurrentViewportTop", mCurrentViewport.top);
+        targetInstanceState.putFloat( "mCurrentViewportRight", mCurrentViewport.right);
+        targetInstanceState.putFloat( "mCurrentViewportBottom", mCurrentViewport.bottom);
+    }
     
     public float getMapWidth()
     {

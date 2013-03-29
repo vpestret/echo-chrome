@@ -24,6 +24,7 @@ public class EchoChromeView extends View {
     private float AXIS_X_MAX;
     private float AXIS_Y_MIN;
     private float AXIS_Y_MAX;
+    private float mInitialScale = 500f;
     
     private RectF mCurrentViewport;
     private Rect mContentRect = new Rect();
@@ -90,21 +91,24 @@ public class EchoChromeView extends View {
                 getWidth() - getPaddingRight(),
                 getHeight() - getPaddingBottom());
         // make same proportions as for content rectangle to maintain circle shape
-        float cvpW  = mCurrentViewport.width();
         if ( mGameContext != null )
         {
             mCurrentViewport.top  = mGameContext.mCurrentViewport.top;
             mCurrentViewport.left = mGameContext.mCurrentViewport.left;
-            cvpW = mGameContext.mCurrentViewport.width();
+            if (mGameContext.mScale != 0f)
+                mScale = mGameContext.mScale;
+            else
+                mScale = mInitialScale;
+            //Log.d( TAG, "Scale = " + mScale);
         } else
         {
             mCurrentViewport.top  = AXIS_Y_MIN;
             mCurrentViewport.left = AXIS_X_MIN;
+            mScale = mInitialScale;
         }
-        mCurrentViewport.bottom = mCurrentViewport.top + cvpW*mContentRect.height()/mContentRect.width();
-        mCurrentViewport.right = mCurrentViewport.left + cvpW;
+        mCurrentViewport.bottom = mCurrentViewport.top + mContentRect.height() / mScale;
+        mCurrentViewport.right = mCurrentViewport.left + mContentRect.width() / mScale;
         
-        mScale = mContentRect.height()/mCurrentViewport.height();
         mPoleW = MAX_POLE_RATIO * mCurrentViewport.width();
         mPoleH = MAX_POLE_RATIO * mCurrentViewport.height();
     }
@@ -260,6 +264,7 @@ public class EchoChromeView extends View {
             if ( mGameContext != null )
             {
                 mGameContext.mCurrentViewport.set(mCurrentViewport.left, mCurrentViewport.top, mCurrentViewport.right, mCurrentViewport.bottom);
+                mGameContext.mScale = mScale;
             }
 
             return true;

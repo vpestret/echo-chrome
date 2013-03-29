@@ -1,36 +1,36 @@
 package com.echogames.echochrome;
 
 public class Unit extends RectEntity {
-	// looks like circle with dedicated direction	
-	public float cx;
-	public float cy;
-	public float r;
-	public float dir; // direction is in radians
-	Unit(float cx, float cy, float r, float dir) {
-		super();
-		this.cx  = cx;
-		this.cy  = cy;
-		this.r   = r;	
-		this.dir = dir;
-		update_rect();
-	}
+    // looks like circle with dedicated direction    
+    public float cx;
+    public float cy;
+    public float r;
+    public float dir; // direction is in radians
+    Unit(float cx, float cy, float r, float dir) {
+        super();
+        this.cx  = cx;
+        this.cy  = cy;
+        this.r   = r;    
+        this.dir = dir;
+        update_rect();
+    }
 
-	@Override
+    @Override
     public void update_rect() {
         this.left   = this.cx - this.r;
         this.right  = this.cx + this.r;
         this.top    = this.cy - this.r;
         this.bottom = this.cy + this.r;
     }
-	
-	public boolean collide( RectEntity rect, float[] out_ratio) throws CollisionException {
-		out_ratio[0] = 0f;
-		if ( rect instanceof Shoot )
-		{			
-			return ( ( Shoot) rect).collide(this, out_ratio);
-		} else if ( rect instanceof Unit )
-		{
-			Unit it = ( Unit) rect;
+    
+    public boolean collide( RectEntity rect, float[] out_ratio) throws CollisionException {
+        out_ratio[0] = 0f;
+        if ( rect instanceof Shoot )
+        {            
+            return ( ( Shoot) rect).collide(this, out_ratio);
+        } else if ( rect instanceof Unit )
+        {
+            Unit it = ( Unit) rect;
             // optimization
             if ( !check_rect( it) )
             {
@@ -45,18 +45,18 @@ public class Unit extends RectEntity {
             }
             out_ratio[0] = 1f;
             return true;
-		} else if ( rect instanceof Obstacle )
-		{
-			Obstacle it = ( Obstacle) rect;
+        } else if ( rect instanceof Obstacle )
+        {
+            Obstacle it = ( Obstacle) rect;
             // optimization
             if ( !check_rect( it) )
             {
                 return false;
             }
             boolean in_ne_corner = false;
-    		boolean in_se_corner = false;
-			boolean in_sw_corner = false;
-			boolean in_nw_corner = false;
+            boolean in_se_corner = false;
+            boolean in_sw_corner = false;
+            boolean in_nw_corner = false;
             if ( this.cx > it.right )
             {
                 if (this.cy < it.top)
@@ -78,35 +78,35 @@ public class Unit extends RectEntity {
                 if ( !(s2_1 < this.r*this.r) )
                     return false;
             }
-    		else if (in_ne_corner)
-    		{
-    			float s2_2 = (it.right-this.cx)*(it.right-this.cx) +
+            else if (in_ne_corner)
+            {
+                float s2_2 = (it.right-this.cx)*(it.right-this.cx) +
                        (it.top-this.cy)*(it.top-this.cy);
                 if ( !(s2_2 < this.r*this.r) )
                     return false;
-    		}
-    		else if (in_se_corner)
-    		{
-    			float s2_3 = (it.right-this.cx)*(it.right-this.cx) +
+            }
+            else if (in_se_corner)
+            {
+                float s2_3 = (it.right-this.cx)*(it.right-this.cx) +
                        (it.bottom-this.cy)*(it.bottom-this.cy);
                 if ( !(s2_3 < this.r*this.r) )
                     return false;
-    		}
-    		else if (in_sw_corner)
-    		{
-    			float s2_4 = (it.left-this.cx)*(it.left-this.cx) +
+            }
+            else if (in_sw_corner)
+            {
+                float s2_4 = (it.left-this.cx)*(it.left-this.cx) +
                        (it.bottom-this.cy)*(it.bottom-this.cy);
                 if ( !(s2_4 < this.r*this.r) )
                     return false;
-    		}
+            }
             out_ratio[0] = 1f;
             return true;
-		} else
-		{
-			throw new CollisionException("collides of Unit other than ones with Shoot" +
-					" or with Unit" +
+        } else
+        {
+            throw new CollisionException("collides of Unit other than ones with Shoot" +
+                    " or with Unit" +
                     " or with Obstacle" +
                     " are not supported", this, rect);
-		}
-	}
+        }
+    }
 }

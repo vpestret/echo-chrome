@@ -1,35 +1,35 @@
 package com.echogames.echochrome;
 
 public class Shoot extends RectEntity {
-	// looks like 2D vector	
-	public float cx;
-	public float cy;
-	public float vx;
-	public float vy;
-	public float v;
-	Shoot(float cx, float cy, float vx, float vy) {
-		super();
-		this.cx = cx;
-		this.cy = cy;
-		this.vx = vx;
-		this.vy = vy;
-		this.v  = ( float) Math.sqrt( vx  *  vx + vy  * vy);
-		update_rect();
-	}
+    // looks like 2D vector    
+    public float cx;
+    public float cy;
+    public float vx;
+    public float vy;
+    public float v;
+    Shoot(float cx, float cy, float vx, float vy) {
+        super();
+        this.cx = cx;
+        this.cy = cy;
+        this.vx = vx;
+        this.vy = vy;
+        this.v  = ( float) Math.sqrt( vx  *  vx + vy  * vy);
+        update_rect();
+    }
 
-	@Override
-	public void update_rect() {
-	    this.left   = Math.min(this.cx, this.cx+this.vx);
-	    this.right  = Math.max(this.cx, this.cx+this.vx);
-	    this.top    = Math.min(this.cy, this.cy+this.vy);
-	    this.bottom = Math.max(this.cy, this.cy+this.vy);
-	}
-	
-	public boolean collide( RectEntity rect, float[] out_ratio) throws CollisionException {
-		out_ratio[0] = 0f;
-		if ( rect instanceof Unit )
-		{
-		    Unit it = ( Unit) rect; 
+    @Override
+    public void update_rect() {
+        this.left   = Math.min(this.cx, this.cx+this.vx);
+        this.right  = Math.max(this.cx, this.cx+this.vx);
+        this.top    = Math.min(this.cy, this.cy+this.vy);
+        this.bottom = Math.max(this.cy, this.cy+this.vy);
+    }
+    
+    public boolean collide( RectEntity rect, float[] out_ratio) throws CollisionException {
+        out_ratio[0] = 0f;
+        if ( rect instanceof Unit )
+        {
+            Unit it = ( Unit) rect; 
             // optimization
             if ( !check_rect(it) )
             {
@@ -40,20 +40,20 @@ public class Shoot extends RectEntity {
             float r2 = it.r  *  it.r;
             if ( s2 < r2 )
             {
-            	out_ratio[0] = 1f;
+                out_ratio[0] = 1f;
                 return true;
             }
             // beginning is not inside the circle consider its end
             float v2 = this.v * this.v;
             // just squared v+r > s
             if ( !( v2 + 2  *  this.v  *  it.r + r2 > s2) ){
-                return false;            	
+                return false;                
             }
             // scalar multiplication
             float smv = ( it.cx - this.cx)  *  this.vx + ( it.cy - this.cy)  *  this.vy;
             if ( !(smv > 0) )
             {
-            	return false;
+                return false;
             }
             // vector multiplication
             float sxv = ( it.cx - this.cx)  *  this.vy - ( it.cy - this.cy)  *  this.vx;
@@ -67,13 +67,13 @@ public class Shoot extends RectEntity {
             // last check is not squared
             if ( !(this.v > dti) )
             {
-            	return false;
+                return false;
             }
             out_ratio[0] = (this.v - dti) / this.v;
             return true;
-		} else if ( rect instanceof Obstacle )
-		{
-			Obstacle it = ( Obstacle) rect; 
+        } else if ( rect instanceof Obstacle )
+        {
+            Obstacle it = ( Obstacle) rect; 
             // optimization
             if ( !check_rect(it) )
             {
@@ -111,7 +111,7 @@ public class Shoot extends RectEntity {
                     in_s_corner = true;
                 else
                 {
-                	out_ratio[0] = 1f;
+                    out_ratio[0] = 1f;
                     return true;
                 }
             }
@@ -172,7 +172,7 @@ public class Shoot extends RectEntity {
                 return false;
             } else if ( in_ne_corner )
             {
-            	float ix = ( float) ( ( it.top - this.cy) * this.vx) / this.vy + this.cx;
+                float ix = ( float) ( ( it.top - this.cy) * this.vx) / this.vy + this.cx;
                 if ( it.right < ix && ix < it.right )
                 {
                     out_ratio[0] = ( float) ( this.vy - ( it.top - this.cy)) / this.vy;
@@ -187,7 +187,7 @@ public class Shoot extends RectEntity {
                 return false;
             } else if ( in_se_corner )
             {
-            	float ix = ( float) ( ( it.bottom - this.cy) * this.vx) / this.vy + this.cx;
+                float ix = ( float) ( ( it.bottom - this.cy) * this.vx) / this.vy + this.cx;
                 if ( it.right < ix && ix < it.right )
                 {
                     out_ratio[0] = ( float) ( this.vy - ( it.bottom - this.cy)) / this.vy;
@@ -202,7 +202,7 @@ public class Shoot extends RectEntity {
                 return false;
             } else if ( in_sw_corner )
             {
-            	float ix = ( float) ( ( it.bottom - this.cy) * this.vx) / this.vy + this.cx;
+                float ix = ( float) ( ( it.bottom - this.cy) * this.vx) / this.vy + this.cx;
                 if ( it.right < ix && ix < it.right )
                 {
                     out_ratio[0] = ( float) ( this.vy - ( it.bottom - this.cy)) / this.vy;
@@ -217,7 +217,7 @@ public class Shoot extends RectEntity {
                 return false;
             } else if ( in_nw_corner )
             {
-            	float ix = ( float) ( ( it.top - this.cy) * this.vx) / this.vy + this.cx;
+                float ix = ( float) ( ( it.top - this.cy) * this.vx) / this.vy + this.cx;
                 if ( it.right < ix && ix < it.right )
                 {
                     out_ratio[0] = ( float) ( this.vy - ( it.top - this.cy)) / this.vy;
@@ -232,12 +232,12 @@ public class Shoot extends RectEntity {
                 return false;
             }
             throw new CollisionException("control flow reached unexpectedly this point", this, rect);
-		} else
-		{
-			throw new CollisionException("collides of Shoot other than ones with Unit" +
+        } else
+        {
+            throw new CollisionException("collides of Shoot other than ones with Unit" +
                              " or with Obstacle" +
                              " are not supported", this, rect);
-		}
-	}
-	
+        }
+    }
+    
 }

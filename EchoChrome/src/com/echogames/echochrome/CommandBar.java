@@ -12,7 +12,7 @@ public class CommandBar extends View {
     
     private Rect mContentRect = new Rect();
     private Paint mAxisPaint;
-	
+    
     public CommandBar(Context context) {
         this(context, null, 0);
     }
@@ -22,8 +22,8 @@ public class CommandBar extends View {
     }
     
     public CommandBar(Context context, AttributeSet attrs, int defStyle) {
-    	super(context, attrs, defStyle);
-    	
+        super(context, attrs, defStyle);
+        
         mAxisPaint = new Paint();
         mAxisPaint.setStrokeWidth(1.0f);
         mAxisPaint.setColor(0xff000000);

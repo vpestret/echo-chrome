@@ -1,5 +1,7 @@
 package echozero.game;
 
-public interface EntityInteraction extends Interaction {
+import echozero.graphics.EchoGraphicsEngine;
 
+public interface EntityInteraction extends Interaction {
+	public void draw(EchoGraphicsEngine ege);
 }

@@ -34,6 +34,7 @@ public class GameUI {
 	public void render() {
 		m_gi.clear_all();
 		m_grid.draw(m_gi);
+		m_gs.draw(m_gi);
 	}
 	
 	public void loop() {

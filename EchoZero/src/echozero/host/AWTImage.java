@@ -101,6 +101,10 @@ public class AWTImage implements HostGraphics {
 		m_current.setColor(new Color((float)r, (float)g, (float)b));
 	}
 	
+	public void xor_mode(double r, double g, double b, double a) {
+		m_current.setXORMode(new Color((float)r, (float)g, (float)b));
+	}
+	
 	public void line(int x1, int y1, int x2, int y2) {
 		m_current.drawLine(x1, y1, x2, y2);
 	}
@@ -111,6 +115,14 @@ public class AWTImage implements HostGraphics {
 	
 	public void text(int x1, int y1, String s) {
 		m_current.drawString(s, x1, y1);
+	}
+	
+	public void poly(int np, int x[], int y[], boolean fill) {
+		if(fill) {
+			m_current.fillPolygon(x, y, np);
+		} else {
+			m_current.drawPolygon(x, y, np);			
+		}
 	}
 	
 	public Frame get_frame() { return m_frame; }

@@ -19,23 +19,28 @@ import android.widget.Scroller;
 public class EchoChromeView extends View {
     private static final String TAG = "EchoChromeView";
     
+    private float MAX_POLE_RATIO = 0.25f;
     private float AXIS_X_MIN;
     private float AXIS_X_MAX;
     private float AXIS_Y_MIN;
     private float AXIS_Y_MAX;
+    private float mInitialScale = 500f;
     
-	private RectF mCurrentViewport;
+    private RectF mCurrentViewport;
     private Rect mContentRect = new Rect();
     private float mScale;
-	private Scroller mScroller;
+    private Scroller mScroller;
     private Paint mDataPaint;
     private float mDataThickness = 2.0f;
     private int mDataColor = 0xff00aa00;
     private int mSelColor = 0xffaa0000;
     private int mCollideColor = 0xffaa00aa;
+    private int mPoleColor = 0xff808080;
     private GestureDetectorCompat mGestureDetector;
     private GameContext mGameContext;
     private float mSelected = -1;
+    private float mPoleW = 0f;
+    private float mPoleH = 0f;
     
     public EchoChromeView(Context context) {
         this(context, null, 0);
@@ -58,18 +63,25 @@ public class EchoChromeView extends View {
         
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
         
-        mGameContext = new GameContext();
+        // default values will be overwritten by setGameContext
+        AXIS_X_MIN = 0f;
+        AXIS_X_MAX = 1f;
+        AXIS_Y_MIN = 0f;
+        AXIS_Y_MAX = 1f;
+        
+        mCurrentViewport = new RectF(AXIS_X_MIN, AXIS_Y_MIN,
+                                     AXIS_X_MIN + ( AXIS_X_MAX - AXIS_X_MIN) * 3 / 4,
+                                     AXIS_Y_MIN + ( AXIS_Y_MAX - AXIS_Y_MIN) * 3 / 4);
+    }
+    
+    public void setGameContext( GameContext gc) {
+        mGameContext = gc;
         AXIS_X_MIN = 0f;
         AXIS_X_MAX = mGameContext.getMapWidth();
         AXIS_Y_MIN = 0f;
         AXIS_Y_MAX = mGameContext.getMapHeight();
-        mGameContext.genRamdomUnits( 20, ( float) 0.05, ( float) 0.1);
-        
-        mCurrentViewport = new RectF(AXIS_X_MIN, AXIS_Y_MIN,
-					        		 AXIS_X_MIN + ( AXIS_X_MAX - AXIS_X_MIN) * 3 / 4,
-					        		 AXIS_Y_MIN + ( AXIS_Y_MAX - AXIS_Y_MIN) * 3 / 4);
     }
-
+    
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -79,39 +91,94 @@ public class EchoChromeView extends View {
                 getWidth() - getPaddingRight(),
                 getHeight() - getPaddingBottom());
         // make same proportions as for content rectangle to maintain circle shape
-        mCurrentViewport.top  = AXIS_Y_MIN;
-        mCurrentViewport.bottom = AXIS_Y_MIN + mCurrentViewport.width()*mContentRect.height()/mContentRect.width();
-        mCurrentViewport.right = AXIS_X_MIN + mCurrentViewport.width();
-        mCurrentViewport.left = AXIS_X_MIN;
-        mScale = mContentRect.height()/mCurrentViewport.height();
+        if ( mGameContext != null )
+        {
+            mCurrentViewport.top  = mGameContext.mCurrentViewport.top;
+            mCurrentViewport.left = mGameContext.mCurrentViewport.left;
+            if (mGameContext.mScale != 0f)
+                mScale = mGameContext.mScale;
+            else
+                mScale = mInitialScale;
+            //Log.d( TAG, "Scale = " + mScale);
+        } else
+        {
+            mCurrentViewport.top  = AXIS_Y_MIN;
+            mCurrentViewport.left = AXIS_X_MIN;
+            mScale = mInitialScale;
+        }
+        mCurrentViewport.bottom = mCurrentViewport.top + mContentRect.height() / mScale;
+        mCurrentViewport.right = mCurrentViewport.left + mContentRect.width() / mScale;
+        
+        mPoleW = MAX_POLE_RATIO * mCurrentViewport.width();
+        mPoleH = MAX_POLE_RATIO * mCurrentViewport.height();
     }
     
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-    	//Log.d(TAG, "onDraw at " + mCurrentViewport.left + ", " + mCurrentViewport.top);
+        //Log.d(TAG, "onDraw at " + mCurrentViewport.left + ", " + mCurrentViewport.top);
         // Clips the next few drawing operations to the content area
         int clipRestoreCount = canvas.save();
         canvas.clipRect(mContentRect);
 
-        int nUnits = mGameContext.mUnits.length;
-        for ( int idx = 0; idx < nUnits; idx++ )
+        if ( mGameContext != null )
         {
-        	if ( idx == mSelected )
-        		mDataPaint.setColor(mSelColor);
-        	else if ( mGameContext.mUnitInCollision[ idx ] )
-        		mDataPaint.setColor(mCollideColor);
-        	else
-        		mDataPaint.setColor(mDataColor);
-        	
-        	float cx = ( mGameContext.mUnits[ idx ].cx - mCurrentViewport.left) * mScale;
-        	float cy = ( mGameContext.mUnits[ idx ].cy - mCurrentViewport.top) * mScale;
-        	float r =   mGameContext.mUnits[ idx ].r * mScale;
-        	double dir = ( double) mGameContext.mUnits[ idx ].dir;
-	    	canvas.drawCircle( cx, cy, r, mDataPaint);
-	    	canvas.drawLine( cx, cy, cx + ( float) Math.cos( dir) * r ,
-	    			         cy + ( float) Math.sin( dir) * r , mDataPaint);
+            int nUnits = mGameContext.mUnits.length;
+            for ( int idx = 0; idx < nUnits; idx++ )
+            {
+                if ( idx == mSelected )
+                    mDataPaint.setColor(mSelColor);
+                else if ( mGameContext.mUnitInCollision[ idx ] )
+                    mDataPaint.setColor(mCollideColor);
+                else
+                    mDataPaint.setColor(mDataColor);
+                
+                float cx = ( mGameContext.mUnits[ idx ].cx - mCurrentViewport.left) * mScale;
+                float cy = ( mGameContext.mUnits[ idx ].cy - mCurrentViewport.top) * mScale;
+                float r =   mGameContext.mUnits[ idx ].r * mScale;
+                double dir = ( double) mGameContext.mUnits[ idx ].dir;
+                canvas.drawCircle( cx, cy, r, mDataPaint);
+                canvas.drawLine( cx, cy, cx + ( float) Math.cos( dir) * r ,
+                                 cy + ( float) Math.sin( dir) * r , mDataPaint);
+            }
+        }
+        
+        float poleLeft = AXIS_X_MIN - mCurrentViewport.left;
+        float poleRight = mCurrentViewport.right - AXIS_X_MAX;
+        float poleTop = AXIS_Y_MIN - mCurrentViewport.top;
+        float poleBottom = mCurrentViewport.bottom - AXIS_Y_MAX;
+        
+        if ( poleLeft > 0 )
+        {
+            mDataPaint.setColor( mPoleColor);
+            mDataPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect( mContentRect.left, mContentRect.top, mContentRect.left + poleLeft * mScale, mContentRect.bottom, mDataPaint);
+            mDataPaint.setStyle(Paint.Style.STROKE);
+        }
+        
+        if ( poleRight > 0 )
+        {
+            mDataPaint.setColor( mPoleColor);
+            mDataPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect( mContentRect.right - poleRight * mScale, mContentRect.top, mContentRect.right, mContentRect.bottom, mDataPaint);
+            mDataPaint.setStyle(Paint.Style.STROKE);
+        }
+        
+        if ( poleTop > 0 )
+        {
+            mDataPaint.setColor( mPoleColor);
+            mDataPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect( mContentRect.left, mContentRect.top, mContentRect.right, mContentRect.top + poleTop * mScale, mDataPaint);
+            mDataPaint.setStyle(Paint.Style.STROKE);
+        }
+        
+        if ( poleBottom > 0 )
+        {
+            mDataPaint.setColor( mPoleColor);
+            mDataPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect( mContentRect.left, mContentRect.bottom - poleBottom * mScale, mContentRect.right, mContentRect.bottom, mDataPaint);
+            mDataPaint.setStyle(Paint.Style.STROKE);
         }
 
         // Removes clipping rectangle
@@ -119,15 +186,11 @@ public class EchoChromeView extends View {
     }        
 
     private void setViewportBottomLeft(float x, float y) {
-        /**
-         * Constrains within the scroll range. The scroll range is simply the viewport extremes
-         * (AXIS_X_MAX, etc.) minus the viewport size. For example, if the extrema were 0 and 10,
-         * and the viewport size was 2, the scroll range would be 0 to 8.
-         */
         float curWidth = mCurrentViewport.width();
         float curHeight = mCurrentViewport.height();
-        x = Math.max(AXIS_X_MIN, Math.min(x, AXIS_X_MAX - curWidth));
-        y = Math.max(AXIS_Y_MIN + curHeight, Math.min(y, AXIS_Y_MAX));
+        
+        x = Math.max(AXIS_X_MIN - mPoleW, Math.min(x, AXIS_X_MAX + mPoleW - curWidth));
+        y = Math.max(AXIS_Y_MIN - mPoleH + curHeight, Math.min(y, AXIS_Y_MAX + mPoleH));
 
         mCurrentViewport.set(x, y - curHeight, x + curWidth, y);
         ViewCompat.postInvalidateOnAnimation(this);
@@ -150,32 +213,31 @@ public class EchoChromeView extends View {
      }
     
     private void updateSel(float x, float y) {
-    	PointF point = new PointF();
-    	if ( hitTest( x,y, point) && mSelected == -1)
-    	{
-    		x = point.x;
-    		y = point.y;
-    		mSelected = -1; // possible useless
-    		for (int i = 0; i < mGameContext.mUnits.length; i++) {
-    			float rad_sq = (x-mGameContext.mUnits[ i ].cx)*(x-mGameContext.mUnits[ i ].cx) +
-    					       (y-mGameContext.mUnits[ i ].cy)*(y-mGameContext.mUnits[ i ].cy);
-    			if ( rad_sq < mGameContext.mUnits[ i ].r*mGameContext.mUnits[ i ].r ) {
-    				mSelected = i;
-    			}
-    		}
-    	}
+        PointF point = new PointF();
+        if ( hitTest( x,y, point) && mSelected == -1)
+        {
+            x = point.x;
+            y = point.y;
+            mSelected = -1; // possible useless
+            if ( mGameContext != null )
+            {
+                for (int i = 0; i < mGameContext.mUnits.length; i++) {
+                    float rad_sq = (x-mGameContext.mUnits[ i ].cx)*(x-mGameContext.mUnits[ i ].cx) +
+                                   (y-mGameContext.mUnits[ i ].cy)*(y-mGameContext.mUnits[ i ].cy);
+                    if ( rad_sq < mGameContext.mUnits[ i ].r*mGameContext.mUnits[ i ].r ) {
+                        mSelected = i;
+                    }
+                }
+            }
+        }
     }
     
     public void releaseSelection()
     {
-    	mSelected = -1;
-    	ViewCompat.postInvalidateOnAnimation(this);
+        mSelected = -1;
+        ViewCompat.postInvalidateOnAnimation(this);
     }
     
-    /**
-     * The gesture listener, used for handling simple gestures such as double touches, scrolls,
-     * and flings.
-     */
     private final GestureDetector.SimpleOnGestureListener mGestureListener
             = new GestureDetector.SimpleOnGestureListener() {
         @Override
@@ -187,26 +249,23 @@ public class EchoChromeView extends View {
         
         @Override     
         public boolean onSingleTapUp(MotionEvent e) {
-        	Log.d(TAG, "onSingleTapUp: " + e.toString());
-        	updateSel(e.getX(), e.getY());
-        	ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
-        	return true;
+            Log.d(TAG, "onSingleTapUp: " + e.toString());
+            updateSel(e.getX(), e.getY());
+            ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
+            return true;
         } 
         
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            // Scrolling uses math based on the viewport (as opposed to math using pixels).
-            /**
-             * Pixel offset is the offset in screen pixels, while viewport offset is the
-             * offset within the current viewport. For additional information on surface sizes
-             * and pixel offsets, see the docs for {@link computeScrollSurfaceSize()}. For
-             * additional information about the viewport, see the comments for
-             * {@link mCurrentViewport}.
-             */
-            float viewportOffsetX = distanceX * mCurrentViewport.width() / mContentRect.width();
-            float viewportOffsetY = distanceY * mCurrentViewport.height() / mContentRect.height();
-            setViewportBottomLeft( mCurrentViewport.left + viewportOffsetX,
-                                   mCurrentViewport.bottom + viewportOffsetY);
+            // So convert from pixels to view coordinates
+            setViewportBottomLeft( mCurrentViewport.left + distanceX / mScale,
+                                   mCurrentViewport.bottom + distanceY / mScale);
+            
+            if ( mGameContext != null )
+            {
+                mGameContext.mCurrentViewport.set(mCurrentViewport.left, mCurrentViewport.top, mCurrentViewport.right, mCurrentViewport.bottom);
+                mGameContext.mScale = mScale;
+            }
 
             return true;
         }

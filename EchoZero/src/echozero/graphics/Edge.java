@@ -14,8 +14,6 @@ public class Edge extends Primitive {
 	}
 	
 	public void draw(Matrix3 tr, HostGraphics hg) {
-		Vector2 v1;
-		Vector2 v2;
 		double[] x1;
 		double[] x2;
 		

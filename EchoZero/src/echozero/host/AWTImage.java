@@ -54,7 +54,8 @@ public class AWTImage implements HostGraphics {
         		m_frame.addWindowListener(new AWTWindowListener());
         	}
         	
-            m_frame.setIgnoreRepaint(true);            
+            if(!windowed) { m_frame.setIgnoreRepaint(true); }
+            
             m_frame.createBufferStrategy(2);
             m_buffer = m_frame.getBufferStrategy();
             BufferCapabilities cap = m_buffer.getCapabilities();

@@ -2,11 +2,11 @@ package echozero.ui;
 
 import java.awt.Graphics;
 
+import echozero.game.GameState;
 import echozero.graphics.EchoGraphicsEngine;
 import echozero.util.Program;
 
 public class GameUI {
-	
 	public class Direction {
 		public static final int DIR_UP = 0;
 		public static final int DIR_DOWN = 1;
@@ -14,25 +14,21 @@ public class GameUI {
 		public static final int DIR_RIGHT = 3;
 	}
 	
+	// global state holders 
 	private EchoGraphicsEngine m_gi;
+	private GameState m_gs;
 	private GameUIInput m_input;
-	private boolean m_exit;
-	private boolean[] m_scroll;
 	
-	private int m_x;
-	private int m_y;
+	// ui
+	private boolean m_exit;
 	private Grid m_grid;
 	
-	public GameUI(EchoGraphicsEngine gi) {
+	public GameUI(EchoGraphicsEngine gi, GameState gs) {
+		m_gs = gs;
 		m_gi = gi;
 		m_input = new GameUIInput(this);
 		m_exit = false;
-		m_scroll = new boolean[4];
 		m_grid = new Grid(0.05, 0.05);
-	}
-	
-	public void set_scroll(int dir, boolean value) {
-		m_scroll[dir] = value;
 	}
 	
 	public void render() {

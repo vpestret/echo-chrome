@@ -25,10 +25,6 @@ public class EchoGraphicsEngine {
 	public void load_host_projection() {
 		double w;
 		double h;
-		double p;
-		double xmax;
-		double ymax;
-		Matrix3 m;
 		
 		w = m_cap.get_width();
 		h = m_cap.get_height();

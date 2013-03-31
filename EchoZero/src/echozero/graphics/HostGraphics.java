@@ -11,4 +11,5 @@ public interface HostGraphics {
 	public void set_color(double r, double g, double b, double a);
 	public void line(int x1, int y1, int x2, int y2);
 	public void rect(int x1, int y1, int x2, int y2);
+	public void text(int x1, int y1, String s);
 }

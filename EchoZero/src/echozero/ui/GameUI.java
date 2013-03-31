@@ -21,12 +21,14 @@ public class GameUI {
 	
 	private int m_x;
 	private int m_y;
+	private Grid m_grid;
 	
 	public GameUI(EchoGraphicsEngine gi) {
 		m_gi = gi;
 		m_input = new GameUIInput(this);
 		m_exit = false;
 		m_scroll = new boolean[4];
+		m_grid = new Grid(0.05, 0.05);
 	}
 	
 	public void set_scroll(int dir, boolean value) {
@@ -35,28 +37,35 @@ public class GameUI {
 	
 	public void render() {
 		m_gi.clear_all();
+		m_grid.draw(m_gi);
 	}
 	
 	public void loop() {
-		long dt;
+		double fps;
 		
+		fps = 0.0;
 		while(!m_exit) {
+			long dt_ns;
 			double sc;
+			double dt;
 			
-			dt = -System.nanoTime();
+			dt_ns = -System.nanoTime();
+			
 			m_gi.set_current_buffer();
 			render();
+			m_gi.draw_fps(fps);			
 			m_gi.switch_buffers();
-			dt += System.nanoTime();
 			
-			sc = dt / 1e9 * 100.0;
-			if(m_scroll[GameUI.Direction.DIR_UP] && !m_scroll[GameUI.Direction.DIR_DOWN]) 		{ m_y -= sc; }
-			if(m_scroll[GameUI.Direction.DIR_DOWN] && !m_scroll[GameUI.Direction.DIR_UP]) 		{ m_y += sc; }		
-			if(m_scroll[GameUI.Direction.DIR_LEFT] && !m_scroll[GameUI.Direction.DIR_RIGHT]) 	{ m_x -= sc; }
-			if(m_scroll[GameUI.Direction.DIR_RIGHT] && !m_scroll[GameUI.Direction.DIR_LEFT]) 	{ m_x += sc; }
+			dt_ns += System.nanoTime();
+			dt = dt_ns * 1.0 / 1e6;
+			fps = 1000 / dt;
 			
-			try { Thread.sleep(10); } // 100 FPS
-			catch(Exception e) {}
+			/* FPS limiter */
+			if(dt < 10) {
+				
+				try { Thread.sleep((long)(10 - dt)); } // 100 FPS
+				catch(Exception e) {}
+			}
 		}
 	}
 }

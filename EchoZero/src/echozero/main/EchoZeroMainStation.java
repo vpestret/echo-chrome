@@ -23,7 +23,7 @@ public class EchoZeroMainStation {
 		
 		gui = null;
 		try {
-			ai = new AWTImage(true);
+			ai = new AWTImage(true, 1280, 1024);
 			gui = new GameUI(new EchoGraphicsEngine(ai));
 			new AWTInput(ai.get_frame(), new GameUIInput(gui));
 		}
@@ -32,7 +32,7 @@ public class EchoZeroMainStation {
 			System.err.println("error initializing global parameters: " + e.getMessage());
 			System.exit(-1);
 		}
-		
+
 		try {
 			gui.loop();
 		}

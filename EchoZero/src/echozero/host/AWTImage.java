@@ -1,5 +1,6 @@
 package echozero.host;
 
+import java.awt.BufferCapabilities;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -32,7 +33,7 @@ public class AWTImage implements HostGraphics {
 	private BufferStrategy m_buffer;
 	private Graphics m_current;
 	
-	public AWTImage(boolean windowed) throws IOException {
+	public AWTImage(boolean windowed, int w, int h) throws IOException {
         GraphicsEnvironment env;
         GraphicsConfiguration gc;
         
@@ -48,7 +49,7 @@ public class AWTImage implements HostGraphics {
         		gd.setFullScreenWindow(m_frame);
         	} else {
         		m_frame = new Frame("-)cho Chrom(-");
-        		m_frame.setSize(1600, 1200);
+        		m_frame.setSize(w, h);
         		m_frame.setVisible(true);
         		m_frame.addWindowListener(new AWTWindowListener());
         	}
@@ -56,12 +57,14 @@ public class AWTImage implements HostGraphics {
             m_frame.setIgnoreRepaint(true);            
             m_frame.createBufferStrategy(2);
             m_buffer = m_frame.getBufferStrategy();
+            BufferCapabilities cap = m_buffer.getCapabilities();
             m_bounds = m_frame.getBounds();
             
         	Program.log.log_message(0, "device acquired: bounds: " + 
         			m_bounds.getMinX() + "," + m_bounds.getMinY() + " x " +
         			m_bounds.getMaxX() + "," + m_bounds.getMaxY() 
         	);
+        	Program.log.log_message(0, "page flipping: " + (cap.isPageFlipping() ? "true" : "false"));
         }
 
         catch(Exception e) {
@@ -71,7 +74,7 @@ public class AWTImage implements HostGraphics {
     }
 	
     public AWTImage() throws IOException {
-    	this(true);
+    	this(true, 1280, 1024);
     }
     
     public HostGraphicsCapabilities get_caps() {
@@ -80,20 +83,21 @@ public class AWTImage implements HostGraphics {
                 
 	public void set_current_buffer() { 
 		m_current = m_buffer.getDrawGraphics();
-		
 	}
 	
 	public void switch_buffers() {
+		m_buffer.show();
 		m_current.dispose();		
-        m_buffer.show();
 	}
 
 	public void clear_all() {
-        m_current.clearRect(0, 0, m_bounds.width, m_bounds.width);
+		m_current.setColor(Color.BLACK);
+        m_current.fillRect(0, 0, m_bounds.width, m_bounds.height);
 	}
 	
+	/* Color with alpha is very slow on AWT */
 	public void set_color(double r, double g, double b, double a) {
-		m_current.setColor(new Color((float)r, (float)g, (float)b, (float)a));
+		m_current.setColor(new Color((float)r, (float)g, (float)b));
 	}
 	
 	public void line(int x1, int y1, int x2, int y2) {
@@ -102,6 +106,10 @@ public class AWTImage implements HostGraphics {
 	
 	public void rect(int x1, int y1, int x2, int y2) {
 		m_current.drawRect(x1,  x1, x2 - x1, y2 - y1);
+	}
+	
+	public void text(int x1, int y1, String s) {
+		m_current.drawString(s, x1, y1);
 	}
 	
 	public Frame get_frame() { return m_frame; }

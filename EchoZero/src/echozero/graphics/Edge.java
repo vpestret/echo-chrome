@@ -14,6 +14,13 @@ public class Edge extends Primitive {
 	}
 	
 	public void draw(Matrix3 tr, HostGraphics hg) {
+		Vector2 v1;
+		Vector2 v2;
+		double[] x1;
+		double[] x2;
 		
+		x1 = tr.multiply_vector2h(m_p1).get_x();
+		x2 = tr.multiply_vector2h(m_p2).get_x();
+		hg.line((int)x1[0], (int)x1[1], (int)x2[0], (int)x2[1]);
 	}
 }

@@ -15,8 +15,8 @@ public class Grid {
 		m_pl = new PrimitiveList();
 		m_pl.add(new Color(1, 1, 0, 0));
 		
-		for(x = 0; x < 1 + dx; x += dx) { m_pl.add(new Edge(x, 0, x, 1)); }
-		for(y = 0; y < 1 + dy; y += dy) { m_pl.add(new Edge(0, y, 1, y)); }
+		for(x = 0; x < 1 + dx - dx / 10; x += dx) { m_pl.add(new Edge(x, 0, x, 1)); }
+		for(y = 0; y < 1 + dy - dy / 10; y += dy) { m_pl.add(new Edge(0, y, 1, y)); }
 	}
 	
 	public void draw(EchoGraphicsEngine ege) {

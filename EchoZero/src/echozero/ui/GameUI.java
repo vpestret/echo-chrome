@@ -4,6 +4,7 @@ import java.awt.Graphics;
 
 import echozero.game.GameState;
 import echozero.graphics.EchoGraphicsEngine;
+import echozero.math.Vector2;
 import echozero.util.Program;
 
 public class GameUI {
@@ -23,6 +24,7 @@ public class GameUI {
 	private double m_view_y;
 	private double m_view_scale;
 	private double m_view_angle;
+	private int m_reverse_y;
 	
 	// ui
 	private boolean m_exit;
@@ -39,6 +41,7 @@ public class GameUI {
 		m_view_angle = 0;
 		m_view_x = 0;
 		m_view_y = 0;
+		m_reverse_y = -1;
 		m_scroll = new boolean[4];
 	}
 	
@@ -76,9 +79,9 @@ public class GameUI {
 			m_gs.update_time(dt);
 			
 			if(m_scroll[0]) { m_view_x += dt * 0.001 / m_view_scale; }
-			if(m_scroll[1]) { m_view_y += dt * 0.001 / m_view_scale; }
+			if(m_scroll[1]) { m_view_y -= m_reverse_y * dt * 0.001 / m_view_scale; }
 			if(m_scroll[2]) { m_view_x -= dt * 0.001 / m_view_scale; }
-			if(m_scroll[3]) { m_view_y -= dt * 0.001 / m_view_scale; }
+			if(m_scroll[3]) { m_view_y += m_reverse_y * dt * 0.001 / m_view_scale; }
 			
 			/* FPS limiter */
 			if(dt < 10) {
@@ -90,4 +93,13 @@ public class GameUI {
 	}/* loop */
 	
 	public void scroll(int dir, boolean value) { m_scroll[dir] = value; }
+
+	Vector2 remap_to_world(int x, int y) {
+		return new Vector2(0, 0);
+	}
+	
+	public void zoom(int x, int y, int val) {
+		if(val > 0) { m_view_scale += 0.1; }
+		else if(val < 0){ m_view_scale -= 0.1; }
+	}
 }

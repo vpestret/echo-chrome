@@ -84,7 +84,7 @@ public class Matrix3 {
 		double[] t;
 		
 		set_scale(sx, sy);
-		multiply(m_c, m_a, m_b);
+		multiply(m_a, m_c, m_b);
 		t = m_a;
 		m_a = m_b;
 		m_b = t;
@@ -95,7 +95,7 @@ public class Matrix3 {
 		double[] t;
 		
 		set_translate_rotate(alpha, dx, dy);
-		multiply(m_c, m_a, m_b);
+		multiply(m_a, m_c, m_b);
 		t = m_a;
 		m_a = m_b;
 		m_b = t;
@@ -106,7 +106,7 @@ public class Matrix3 {
 		double[] t;
 		
 		set_translate_rotate_scale(scale_x, scale_y, alpha, dx, dy);
-		multiply(m_c, m_a, m_b);
+		multiply(m_a, m_c, m_b);
 		t = m_a;
 		m_a = m_b;
 		m_b = t;
@@ -118,7 +118,7 @@ public class Matrix3 {
 		double[] t;
 		
 		set_translate(dx, dy);
-		multiply(m_c, m_a, m_b);
+		multiply(m_a, m_c, m_b);
 		t = m_a;
 		m_a = m_b;
 		m_b = t;
@@ -129,7 +129,7 @@ public class Matrix3 {
 		double[] t;
 		
 		set_rotate(alpha);
-		multiply(m_c, m_a, m_b);
+		multiply(m_a, m_c, m_b);
 		t = m_a;
 		m_a = m_b;
 		m_b = t;

@@ -10,16 +10,18 @@ import echozero.graphics.primitives.XORMode;
 
 public class Target extends Entity {
 	private static final double R = 0.01;
-	PrimitiveList m_pr;
-	double m_angle;
+	private PrimitiveList m_pr;
+	private double m_angle;
+	private double m_scale;
 	
 	public Target(double x, double y) {
 		super(x, y);
 		regen_prim(R);
 		m_angle = 0;
+		m_scale = 1.0;
 	}
 	
-	public void regen_prim(double r) {
+	 void regen_prim(double r) {
 		m_pr = new PrimitiveList();
 		m_pr.add(new Color(1, 1, 0, 0));
 		m_pr.add(new RegPoly(5, r, true));
@@ -34,8 +36,9 @@ public class Target extends Entity {
 	
 	public void draw(EchoGraphicsEngine ege) {
 		ege.push_matrix();
-		ege.rotate(m_angle);		
-		ege.translate(m_x.get_x()[0], m_x.get_x()[1]);
+		ege.translate(m_x.get_x()[0], m_x.get_x()[1]);		
+		ege.rotate(m_angle);
+		ege.scale(m_scale, m_scale);		
 		ege.draw_prim_list(m_pr);
 		ege.pop_matrix();
 	}

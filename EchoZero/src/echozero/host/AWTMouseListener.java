@@ -13,6 +13,17 @@ public class AWTMouseListener extends MouseAdapter {
 			m_inp = inp;
 		}
 		
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			int rot;
+			int x;
+			int y;
+
+			x = e.getX();
+			y = e.getY();
+			rot = e.getWheelRotation();
+			m_inp.mouse_wheel(System.nanoTime(), x, y, rot);
+		}
+		
 		public void mouseMoved(MouseEvent e) {
 			int x;
 			int y;
@@ -44,14 +55,4 @@ public class AWTMouseListener extends MouseAdapter {
 			m_inp.mouse_key_up(System.nanoTime(), x, y, b);
 		}
 		
-		public void mouseWheelMoved(MouseWheelEvent e) {
-			int rot;
-			int x;
-			int y;
-
-			x = e.getX();
-			y = e.getY();
-			rot = e.getWheelRotation();
-			m_inp.mouse_wheel(System.nanoTime(), x, y, rot);
-		}
 }

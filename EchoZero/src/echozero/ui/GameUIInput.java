@@ -50,6 +50,7 @@ public class GameUIInput extends GameInputAdapter {
 	}
 	
 	void set_scrolling(int key, boolean val) {
+		if(key < 1 || key > 4) { return; }
 		m_gu.scroll(key - 1, val);
 	}
 	
@@ -83,5 +84,9 @@ public class GameUIInput extends GameInputAdapter {
 		} else {
 			m_is_repeating = true;
 		}
+	}
+	
+	public void mouse_wheel(long time, int x, int y, int val) {
+		m_gu.zoom(x, y, val);
 	}
 }

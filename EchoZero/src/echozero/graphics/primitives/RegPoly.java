@@ -1,4 +1,4 @@
-package echozero.graphics;
+package echozero.graphics.primitives;
 
 import echozero.math.Vector2;
 

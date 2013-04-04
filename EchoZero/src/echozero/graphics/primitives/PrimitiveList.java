@@ -1,5 +1,6 @@
-package echozero.graphics;
+package echozero.graphics.primitives;
 
+import echozero.graphics.host.HostGraphics;
 import echozero.math.Matrix3;
 import echozero.util.DList;
 

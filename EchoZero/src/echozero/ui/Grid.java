@@ -1,9 +1,9 @@
 package echozero.ui;
 
-import echozero.graphics.Color;
-import echozero.graphics.Edge;
-import echozero.graphics.PrimitiveList;
-import echozero.graphics.EchoGraphicsEngine;;
+import echozero.graphics.EchoGraphicsEngine;
+import echozero.graphics.primitives.Color;
+import echozero.graphics.primitives.Edge;
+import echozero.graphics.primitives.PrimitiveList;
 
 public class Grid {
 	private PrimitiveList m_pl;
@@ -14,8 +14,9 @@ public class Grid {
 		
 		m_pl = new PrimitiveList();
 		m_pl.add(new Color(1, 1, 0, 0));
-		for(x = 0; x < 1; x += dx) { m_pl.add(new Edge(x, 0, x, 1)); }
-		for(y = 0; y < 1; y += dy) { m_pl.add(new Edge(0, y, 1, y)); }
+		
+		for(x = 0; x < 1 + dx; x += dx) { m_pl.add(new Edge(x, 0, x, 1)); }
+		for(y = 0; y < 1 + dy; y += dy) { m_pl.add(new Edge(0, y, 1, y)); }
 	}
 	
 	public void draw(EchoGraphicsEngine ege) {

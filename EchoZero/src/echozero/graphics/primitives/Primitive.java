@@ -1,5 +1,7 @@
-package echozero.graphics;
+package echozero.graphics.primitives;
 
+import echozero.graphics.Drawable;
+import echozero.graphics.host.HostGraphics;
 import echozero.math.Matrix3;
 
 public class Primitive implements Drawable {

@@ -1,5 +1,6 @@
-package echozero.graphics;
+package echozero.graphics.primitives;
 
+import echozero.graphics.host.HostGraphics;
 import echozero.math.Matrix3;
 import echozero.math.Vector2;
 
@@ -19,6 +20,7 @@ public class Edge extends Primitive {
 		
 		x1 = tr.multiply_vector2h(m_p1).get_x();
 		x2 = tr.multiply_vector2h(m_p2).get_x();
+		
 		hg.line((int)x1[0], (int)x1[1], (int)x2[0], (int)x2[1]);
 	}
 }

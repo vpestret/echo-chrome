@@ -13,13 +13,13 @@ public class AWTKeyListener extends KeyAdapter {
 		int code;
 		
 		code = e.getKeyCode();
-		m_inp.key_up(System.nanoTime(), code);
+		m_inp.key_up(e.getWhen(), code, e.getKeyLocation());
 	}
 	
 	public void keyPressed(KeyEvent e) {
 		int code;
 		
 		code = e.getKeyCode();
-		m_inp.key_dn(System.nanoTime(), code);
+		m_inp.key_dn(e.getWhen(), code, e.getKeyLocation());
 	}
 }

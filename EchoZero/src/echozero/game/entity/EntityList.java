@@ -1,4 +1,4 @@
-package echozero.game;
+package echozero.game.entity;
 
 import echozero.util.DList;
 

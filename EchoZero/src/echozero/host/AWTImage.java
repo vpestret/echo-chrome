@@ -14,8 +14,8 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.io.IOException;
 
-import echozero.graphics.HostGraphics;
-import echozero.graphics.HostGraphicsCapabilities;
+import echozero.graphics.host.HostGraphics;
+import echozero.graphics.host.HostGraphicsCapabilities;
 import echozero.util.Program;
 
 class AWTWindowListener extends WindowAdapter {
@@ -98,6 +98,7 @@ public class AWTImage implements HostGraphics {
 	
 	/* Color with alpha is very slow on AWT */
 	public void set_color(double r, double g, double b, double a) {
+		m_current.setPaintMode();
 		m_current.setColor(new Color((float)r, (float)g, (float)b));
 	}
 	

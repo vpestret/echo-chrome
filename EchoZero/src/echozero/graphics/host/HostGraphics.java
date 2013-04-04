@@ -1,4 +1,5 @@
-package echozero.graphics;
+package echozero.graphics.host;
+
 
 public interface HostGraphics {
 	public HostGraphicsCapabilities get_caps();

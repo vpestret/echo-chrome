@@ -1,4 +1,4 @@
-package echozero.game;
+package echozero.game.entity;
 
 import echozero.graphics.EchoGraphicsEngine;
 import echozero.math.Vector2;
@@ -21,4 +21,7 @@ public class Entity implements EntityInteraction  {
 	
 	public Vector2 get_x() { return m_x; }
 	public Vector2 get_v() { return m_v; }
+
+	public void update(double dt) {}
+	public boolean is_alive() { return true; }
 }

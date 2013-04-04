@@ -1,11 +1,12 @@
-package echozero.graphics;
+package echozero.graphics.primitives;
 
+import echozero.graphics.host.HostGraphics;
 import echozero.math.Matrix3;
 
-public class XORMode extends Primitive {
+public class Color extends Primitive {
 	private final double[] m_color;
 	
-	public XORMode(double r, double g, double b, double a) { 
+	public Color(double r, double g, double b, double a) { 
 		m_color = new double[4];
 		
 		m_color[0] = r;
@@ -18,4 +19,3 @@ public class XORMode extends Primitive {
 		hg.set_color(m_color[0], m_color[1], m_color[2], m_color[3]);
 	}
 }
-

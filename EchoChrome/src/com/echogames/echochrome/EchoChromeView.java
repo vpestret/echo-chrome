@@ -32,7 +32,8 @@ public class EchoChromeView extends View {
     private Scroller mScroller;
     private Paint mDataPaint;
     private float mDataThickness = 2.0f;
-    private int mDataColor = 0xff00aa00;
+    private int mMenuColor = 0xff000000;
+    private int mUnitColor = 0xff00aa00;
     private int mSelColor = 0xffaa0000;
     private int mCollideColor = 0xffaa00aa;
     private int mPoleColor = 0xff808080;
@@ -41,6 +42,10 @@ public class EchoChromeView extends View {
     private float mSelected = -1;
     private float mPoleW = 0f;
     private float mPoleH = 0f;
+    private boolean mMenuVisible = false;
+    private int mMenuCX = 0;
+    private int mMenuCY = 0;
+    private int mMenuRadius = 40;
     
     public EchoChromeView(Context context) {
         this(context, null, 0);
@@ -56,10 +61,10 @@ public class EchoChromeView extends View {
         mScroller = new Scroller(context);
        
         mDataPaint = new Paint();
-        mDataPaint.setStrokeWidth(mDataThickness);
-        mDataPaint.setColor(mDataColor);
-        mDataPaint.setStyle(Paint.Style.STROKE);
-        mDataPaint.setAntiAlias(true);
+        mDataPaint.setStrokeWidth( mDataThickness);
+        mDataPaint.setColor( mMenuColor);
+        mDataPaint.setStyle( Paint.Style.STROKE);
+        mDataPaint.setAntiAlias( true);
         
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
         
@@ -114,13 +119,13 @@ public class EchoChromeView extends View {
     }
     
     @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+    protected void onDraw( Canvas canvas) {
+        super.onDraw( canvas);
 
         //Log.d(TAG, "onDraw at " + mCurrentViewport.left + ", " + mCurrentViewport.top);
         // Clips the next few drawing operations to the content area
         int clipRestoreCount = canvas.save();
-        canvas.clipRect(mContentRect);
+        canvas.clipRect( mContentRect);
 
         if ( mGameContext != null )
         {
@@ -128,11 +133,11 @@ public class EchoChromeView extends View {
             for ( int idx = 0; idx < nUnits; idx++ )
             {
                 if ( idx == mSelected )
-                    mDataPaint.setColor(mSelColor);
+                    mDataPaint.setColor( mSelColor);
                 else if ( mGameContext.mUnitInCollision[ idx ] )
-                    mDataPaint.setColor(mCollideColor);
+                    mDataPaint.setColor( mCollideColor);
                 else
-                    mDataPaint.setColor(mDataColor);
+                    mDataPaint.setColor( mUnitColor);
                 
                 float cx = ( mGameContext.mUnits[ idx ].cx - mCurrentViewport.left) * mScale;
                 float cy = ( mGameContext.mUnits[ idx ].cy - mCurrentViewport.top) * mScale;
@@ -149,40 +154,37 @@ public class EchoChromeView extends View {
         float poleTop = AXIS_Y_MIN - mCurrentViewport.top;
         float poleBottom = mCurrentViewport.bottom - AXIS_Y_MAX;
         
+        mDataPaint.setColor( mPoleColor);
+        mDataPaint.setStyle( Paint.Style.FILL);
         if ( poleLeft > 0 )
         {
-            mDataPaint.setColor( mPoleColor);
-            mDataPaint.setStyle(Paint.Style.FILL);
             canvas.drawRect( mContentRect.left, mContentRect.top, mContentRect.left + poleLeft * mScale, mContentRect.bottom, mDataPaint);
-            mDataPaint.setStyle(Paint.Style.STROKE);
         }
         
         if ( poleRight > 0 )
         {
-            mDataPaint.setColor( mPoleColor);
-            mDataPaint.setStyle(Paint.Style.FILL);
             canvas.drawRect( mContentRect.right - poleRight * mScale, mContentRect.top, mContentRect.right, mContentRect.bottom, mDataPaint);
-            mDataPaint.setStyle(Paint.Style.STROKE);
         }
         
         if ( poleTop > 0 )
         {
-            mDataPaint.setColor( mPoleColor);
-            mDataPaint.setStyle(Paint.Style.FILL);
             canvas.drawRect( mContentRect.left, mContentRect.top, mContentRect.right, mContentRect.top + poleTop * mScale, mDataPaint);
-            mDataPaint.setStyle(Paint.Style.STROKE);
         }
         
         if ( poleBottom > 0 )
         {
-            mDataPaint.setColor( mPoleColor);
-            mDataPaint.setStyle(Paint.Style.FILL);
-            canvas.drawRect( mContentRect.left, mContentRect.bottom - poleBottom * mScale, mContentRect.right, mContentRect.bottom, mDataPaint);
-            mDataPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawRect( mContentRect.left, mContentRect.bottom - poleBottom * mScale, mContentRect.right, mContentRect.bottom, mDataPaint);            
+        }
+        mDataPaint.setStyle( Paint.Style.STROKE);
+                
+        if ( mMenuVisible )
+        {
+        	mDataPaint.setColor( mMenuColor);
+            canvas.drawCircle( mMenuCX, mMenuCY, mMenuRadius, mDataPaint);
         }
 
         // Removes clipping rectangle
-        canvas.restoreToCount(clipRestoreCount);
+        canvas.restoreToCount( clipRestoreCount);
     }        
 
     private void setViewportBottomLeft(float x, float y) {
@@ -202,8 +204,8 @@ public class EchoChromeView extends View {
         return retVal || super.onTouchEvent(event);
     }
     
-    private boolean hitTest(float x, float y, PointF dest) {
-        if (!mContentRect.contains((int) x, (int) y)) {
+    private boolean hitTest( float x, float y, PointF dest) {
+        if ( !mContentRect.contains( ( int) x, ( int) y)) {
             return false;
         }
 
@@ -212,19 +214,19 @@ public class EchoChromeView extends View {
         return true;
      }
     
-    private void updateSel(float x, float y) {
+    private void updateSel( float x, float y) {
         PointF point = new PointF();
-        if ( hitTest( x,y, point) && mSelected == -1)
+        if ( hitTest( x,y, point) && mSelected == -1 )
         {
             x = point.x;
             y = point.y;
             mSelected = -1; // possible useless
             if ( mGameContext != null )
             {
-                for (int i = 0; i < mGameContext.mUnits.length; i++) {
-                    float rad_sq = (x-mGameContext.mUnits[ i ].cx)*(x-mGameContext.mUnits[ i ].cx) +
-                                   (y-mGameContext.mUnits[ i ].cy)*(y-mGameContext.mUnits[ i ].cy);
-                    if ( rad_sq < mGameContext.mUnits[ i ].r*mGameContext.mUnits[ i ].r ) {
+                for ( int i = 0; i < mGameContext.mUnits.length; i++ ) {
+                    float rad_sq = ( x - mGameContext.mUnits[ i ].cx) * ( x - mGameContext.mUnits[ i ].cx) +
+                                   ( y - mGameContext.mUnits[ i ].cy) * ( y - mGameContext.mUnits[ i ].cy);
+                    if ( rad_sq < mGameContext.mUnits[ i ].r * mGameContext.mUnits[ i ].r ) {
                         mSelected = i;
                     }
                 }
@@ -232,9 +234,18 @@ public class EchoChromeView extends View {
         }
     }
     
+    private void showMenu( float x, float y) {
+    	if ( mSelected != -1 ){
+    		mMenuVisible = true;
+    		mMenuCX = ( int) x;
+    		mMenuCY = ( int) y;
+    	}
+    }
+    
     public void releaseSelection()
     {
         mSelected = -1;
+        mMenuVisible = false;
         ViewCompat.postInvalidateOnAnimation(this);
     }
     
@@ -250,7 +261,8 @@ public class EchoChromeView extends View {
         @Override     
         public boolean onSingleTapUp(MotionEvent e) {
             Log.d(TAG, "onSingleTapUp: " + e.toString());
-            updateSel(e.getX(), e.getY());
+            showMenu( e.getX(), e.getY());
+            updateSel( e.getX(), e.getY());           
             ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
             return true;
         } 

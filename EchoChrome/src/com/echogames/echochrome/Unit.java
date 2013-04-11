@@ -1,11 +1,40 @@
 package com.echogames.echochrome;
 
+import java.util.ArrayList;
+
 public class Unit extends RectEntity {
     // looks like circle with dedicated direction    
     public float cx;
     public float cy;
     public float r;
     public float dir; // direction is in radians
+    
+    public final static int ORDER_TURN = 0;
+    public final static int ORDER_SIDE = 1;
+    public final static int ORDER_RUN  = 2;
+    private final static String str_ORDER_TURN = "T";
+    private final static String str_ORDER_SIDE = "S";
+    private final static String str_ORDER_RUN  = "R";
+    private final static String str_ORDER_ERR  = "X";
+	public ArrayList<Integer> orders;
+	
+	public static String order2str (int order) {
+		if ( order == ORDER_TURN )
+		{
+			return str_ORDER_TURN;
+		} else if ( order == ORDER_SIDE )
+		{
+			return str_ORDER_SIDE;
+		} else if ( order == ORDER_RUN )
+		{
+			return str_ORDER_RUN;
+		} else
+		{
+			return str_ORDER_ERR;
+		}
+		
+	}
+    
     Unit(float cx, float cy, float r, float dir) {
         super();
         this.cx  = cx;
@@ -13,6 +42,10 @@ public class Unit extends RectEntity {
         this.r   = r;    
         this.dir = dir;
         update_rect();
+        orders = new ArrayList<Integer>();
+        orders.add( Integer.valueOf( ORDER_TURN));
+        orders.add( Integer.valueOf( ORDER_SIDE));
+        orders.add( Integer.valueOf( ORDER_RUN));
     }
 
     @Override

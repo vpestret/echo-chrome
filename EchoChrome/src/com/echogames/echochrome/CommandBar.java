@@ -1,9 +1,13 @@
 package com.echogames.echochrome;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -12,6 +16,17 @@ public class CommandBar extends View {
     
     private Rect mContentRect = new Rect();
     private Paint mAxisPaint;
+    private EchoChromeView mECV = null;
+    private GameContext mGameContext = null;
+    private int mPad = 5;
+    
+    public void setGameContext( GameContext gc) {
+        mGameContext = gc;
+    }
+    
+    public void setEchoChromeView( EchoChromeView ecv) {
+    	mECV = ecv;
+    }
     
     public CommandBar(Context context) {
         this(context, null, 0);
@@ -39,11 +54,33 @@ public class CommandBar extends View {
                 getHeight() - getPaddingBottom()-1);
     }
     
+    public void updateView()
+    {
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+    
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
         // Draws chart container
         canvas.drawRect(mContentRect, mAxisPaint);
+        if ( mGameContext != null && mECV != null && mECV.mSelected != -1 )
+        {
+        	ArrayList< Integer > orders = mGameContext.mUnits[ mECV.mSelected ].orders;
+        	Iterator< Integer > orders_i = orders.iterator();
+        	int order_idx = 0;
+        	int dir_x = mContentRect.width() > mContentRect.height() ? 1 : 0;
+        	int dir_y = 1 - dir_x;
+        	int mStride = dir_x * mContentRect.height() + dir_y * mContentRect.width();
+        	mAxisPaint.setTextSize( mStride - 2 * mPad);
+        	while (  orders_i.hasNext() )
+        	{
+        		int order = orders_i.next();
+        		canvas.drawText( Unit.order2str( order), mContentRect.left + mPad + mStride * dir_x * order_idx,
+        				         mContentRect.bottom - mPad - mStride * dir_y * order_idx, mAxisPaint);
+        		order_idx++;
+        	}
+        }
     }
 }

@@ -39,13 +39,15 @@ public class EchoChromeView extends View {
     private int mPoleColor = 0xff808080;
     private GestureDetectorCompat mGestureDetector;
     private GameContext mGameContext;
-    private float mSelected = -1;
+    private CommandBar mCB;
+    public  int mSelected = -1;
     private float mPoleW = 0f;
     private float mPoleH = 0f;
     private boolean mMenuVisible = false;
     private int mMenuCX = 0;
     private int mMenuCY = 0;
-    private int mMenuRadius = 40;
+    private int mMenuRadius = 30;
+    private int mMenuItemsRadius = 25;
     
     public EchoChromeView(Context context) {
         this(context, null, 0);
@@ -85,6 +87,10 @@ public class EchoChromeView extends View {
         AXIS_X_MAX = mGameContext.getMapWidth();
         AXIS_Y_MIN = 0f;
         AXIS_Y_MAX = mGameContext.getMapHeight();
+    }
+    
+    public void setCommandBar( CommandBar cb) {
+    	mCB = cb;
     }
     
     @Override
@@ -181,6 +187,21 @@ public class EchoChromeView extends View {
         {
         	mDataPaint.setColor( mMenuColor);
             canvas.drawCircle( mMenuCX, mMenuCY, mMenuRadius, mDataPaint);
+            float item_distance = mMenuRadius + mMenuItemsRadius;
+            // Turn menu item
+            canvas.drawCircle( mMenuCX - item_distance * ( float) Math.cos( Math.PI / 6), 
+            		           mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6), mMenuItemsRadius, mDataPaint);
+            canvas.drawText( "T", mMenuCX - item_distance * ( float) Math.cos( Math.PI / 6),
+            		              mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6), mDataPaint);
+            // Side step menu item
+            canvas.drawCircle( mMenuCX, mMenuCY - item_distance, mMenuItemsRadius, mDataPaint);
+            canvas.drawText( "S", mMenuCX, mMenuCY - item_distance, mDataPaint);
+            // Run menu item
+            canvas.drawCircle( mMenuCX + item_distance * ( float) Math.cos( Math.PI / 6),
+            		           mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6), mMenuItemsRadius, mDataPaint);
+            canvas.drawText( "R", mMenuCX + item_distance * ( float) Math.cos( Math.PI / 6),
+            				      mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6), mDataPaint);
+            
         }
 
         // Removes clipping rectangle
@@ -264,6 +285,7 @@ public class EchoChromeView extends View {
             showMenu( e.getX(), e.getY());
             updateSel( e.getX(), e.getY());           
             ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
+            mCB.updateView();
             return true;
         } 
         

@@ -30,7 +30,9 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 // Perform action on click
                 EchoChromeView tgt_v = ( EchoChromeView) findViewById(R.id.view1);
+                CommandBar cb_view = (CommandBar) findViewById(R.id.view2);
                 tgt_v.releaseSelection();
+                cb_view.updateView();
             }
         });
         
@@ -46,7 +48,14 @@ public class MainActivity extends Activity {
         }
         
         final EchoChromeView ec_view = (EchoChromeView) findViewById(R.id.view1);
+        final CommandBar cb_view = (CommandBar) findViewById(R.id.view2);
+        
         ec_view.setGameContext( mGameContext);
+        ec_view.setCommandBar( cb_view);
+        
+        
+        cb_view.setGameContext( mGameContext);
+        cb_view.setEchoChromeView( ec_view);
     }
     
     @Override

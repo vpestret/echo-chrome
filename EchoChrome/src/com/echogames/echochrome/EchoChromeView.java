@@ -45,10 +45,16 @@ public class EchoChromeView extends View {
     private float mPoleW = 0f;
     private float mPoleH = 0f;
     private boolean mMenuVisible = false;
-    private int mMenuCX = 0;
-    private int mMenuCY = 0;
-    private int mMenuRadius = 30;
-    private int mMenuItemsRadius = 25;
+    private float mMenuCX = 0;
+    private float mMenuCY = 0;
+    private float mMenuTCX = 0;
+    private float mMenuTCY = 0;
+    private float mMenuSCX = 0;
+    private float mMenuSCY = 0;
+    private float mMenuRCX = 0;
+    private float mMenuRCY = 0;
+    private float mMenuRadius = 30;
+    private float mMenuItemsRadius = 25;
     
     public EchoChromeView(Context context) {
         this(context, null, 0);
@@ -207,21 +213,16 @@ public class EchoChromeView extends View {
         {
         	mDataPaint.setColor( mMenuColor);
             canvas.drawCircle( mMenuCX, mMenuCY, mMenuRadius, mDataPaint);
-            float item_distance = mMenuRadius + mMenuItemsRadius;
-            // Turn menu item
-            canvas.drawCircle( mMenuCX - item_distance * ( float) Math.cos( Math.PI / 6), 
-            		           mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6), mMenuItemsRadius, mDataPaint);
-            canvas.drawText( "T", mMenuCX - item_distance * ( float) Math.cos( Math.PI / 6),
-            		              mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6), mDataPaint);
-            // Side step menu item
-            canvas.drawCircle( mMenuCX, mMenuCY - item_distance, mMenuItemsRadius, mDataPaint);
-            canvas.drawText( "S", mMenuCX, mMenuCY - item_distance, mDataPaint);
-            // Run menu item
-            canvas.drawCircle( mMenuCX + item_distance * ( float) Math.cos( Math.PI / 6),
-            		           mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6), mMenuItemsRadius, mDataPaint);
-            canvas.drawText( "R", mMenuCX + item_distance * ( float) Math.cos( Math.PI / 6),
-            				      mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6), mDataPaint);
             
+            // Turn menu item
+            canvas.drawCircle( mMenuTCX, mMenuTCY, mMenuItemsRadius, mDataPaint);
+            canvas.drawText( "T", mMenuTCX, mMenuTCY, mDataPaint);
+            // Side step menu item
+            canvas.drawCircle( mMenuSCX, mMenuSCY, mMenuItemsRadius, mDataPaint);
+            canvas.drawText( "S", mMenuSCX, mMenuSCY, mDataPaint);
+            // Run menu item
+            canvas.drawCircle( mMenuRCX, mMenuRCY, mMenuItemsRadius, mDataPaint);
+            canvas.drawText( "R", mMenuRCX, mMenuRCY, mDataPaint);            
         }
 
         // Removes clipping rectangle
@@ -275,11 +276,37 @@ public class EchoChromeView extends View {
         }
     }
     
-    private void showMenu( float x, float y) {
-    	if ( mSelected != -1 ){
+    private void updateMenu( float x, float y) {
+    	int order_type = Order.ORDER_ERR;
+  	
+    	if ( mSelected != -1 && mMenuVisible ){    		
+    		// detect button to hit
+    		float rad_sq = ( x - mMenuTCX) * ( x - mMenuTCX) + ( y - mMenuTCY) * ( y - mMenuTCY);
+    		if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
+    			order_type = Order.ORDER_TURN;
+    		rad_sq = ( x - mMenuSCX) * ( x - mMenuSCX) + ( y - mMenuSCY) * ( y - mMenuSCY);
+    		if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
+    			order_type = Order.ORDER_SIDE;
+    		rad_sq = ( x - mMenuRCX) * ( x - mMenuRCX) + ( y - mMenuRCY) * ( y - mMenuRCY);
+    		if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
+    			order_type = Order.ORDER_RUN;
+    		
+    		if ( Order.ORDER_ERR != order_type && mGameContext != null)
+    		{
+    			mGameContext.mUnits[ mSelected ].orders.add( new Order( order_type));
+    		}
+    	}
+    	if ( mSelected != -1 && order_type == Order.ORDER_ERR) {
     		mMenuVisible = true;
-    		mMenuCX = ( int) x;
-    		mMenuCY = ( int) y;
+    		mMenuCX = x;
+    		mMenuCY = y;
+    		float item_distance = mMenuRadius + mMenuItemsRadius;
+    		mMenuTCX = mMenuCX - item_distance * ( float) Math.cos( Math.PI / 6);
+    		mMenuTCY = mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6);
+    		mMenuSCX = mMenuCX;
+    		mMenuSCY = mMenuCY - item_distance;
+    		mMenuRCX = mMenuCX + item_distance * ( float) Math.cos( Math.PI / 6);
+    		mMenuRCY = mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6);
     	}
     }
     
@@ -302,7 +329,7 @@ public class EchoChromeView extends View {
         @Override     
         public boolean onSingleTapUp(MotionEvent e) {
             Log.d(TAG, "onSingleTapUp: " + e.toString());
-            showMenu( e.getX(), e.getY());
+            updateMenu( e.getX(), e.getY());
             updateSel( e.getX(), e.getY());           
             ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
             mCB.updateView();

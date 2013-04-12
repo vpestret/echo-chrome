@@ -19,9 +19,6 @@ public class Unit extends RectEntity {
         this.dir = dir;
         update_rect();
         orders = new ArrayList<Order>();
-        orders.add( new Order( Order.ORDER_TURN));
-        orders.add( new Order( Order.ORDER_SIDE));
-        orders.add( new Order( Order.ORDER_RUN));
     }
 
     @Override

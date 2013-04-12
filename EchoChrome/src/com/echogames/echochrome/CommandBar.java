@@ -67,8 +67,8 @@ public class CommandBar extends View {
         canvas.drawRect(mContentRect, mAxisPaint);
         if ( mGameContext != null && mECV != null && mECV.mSelected != -1 )
         {
-        	ArrayList< Integer > orders = mGameContext.mUnits[ mECV.mSelected ].orders;
-        	Iterator< Integer > orders_i = orders.iterator();
+        	ArrayList< Order > orders = mGameContext.mUnits[ mECV.mSelected ].orders;
+        	Iterator< Order > orders_i = orders.iterator();
         	int order_idx = 0;
         	int dir_x = mContentRect.width() > mContentRect.height() ? 1 : 0;
         	int dir_y = 1 - dir_x;
@@ -76,8 +76,8 @@ public class CommandBar extends View {
         	mAxisPaint.setTextSize( mStride - 2 * mPad);
         	while (  orders_i.hasNext() )
         	{
-        		int order = orders_i.next();
-        		canvas.drawText( Unit.order2str( order), mContentRect.left + mPad + mStride * dir_x * order_idx,
+        		Order order = orders_i.next();
+        		canvas.drawText( order.getName(), mContentRect.left + mPad + mStride * dir_x * order_idx,
         				         mContentRect.bottom - mPad - mStride * dir_y * order_idx, mAxisPaint);
         		order_idx++;
         	}

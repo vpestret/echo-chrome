@@ -9,31 +9,7 @@ public class Unit extends RectEntity {
     public float r;
     public float dir; // direction is in radians
     
-    public final static int ORDER_TURN = 0;
-    public final static int ORDER_SIDE = 1;
-    public final static int ORDER_RUN  = 2;
-    private final static String str_ORDER_TURN = "T";
-    private final static String str_ORDER_SIDE = "S";
-    private final static String str_ORDER_RUN  = "R";
-    private final static String str_ORDER_ERR  = "X";
-	public ArrayList<Integer> orders;
-	
-	public static String order2str (int order) {
-		if ( order == ORDER_TURN )
-		{
-			return str_ORDER_TURN;
-		} else if ( order == ORDER_SIDE )
-		{
-			return str_ORDER_SIDE;
-		} else if ( order == ORDER_RUN )
-		{
-			return str_ORDER_RUN;
-		} else
-		{
-			return str_ORDER_ERR;
-		}
-		
-	}
+	public ArrayList<Order> orders;
     
     Unit(float cx, float cy, float r, float dir) {
         super();
@@ -42,10 +18,10 @@ public class Unit extends RectEntity {
         this.r   = r;    
         this.dir = dir;
         update_rect();
-        orders = new ArrayList<Integer>();
-        orders.add( Integer.valueOf( ORDER_TURN));
-        orders.add( Integer.valueOf( ORDER_SIDE));
-        orders.add( Integer.valueOf( ORDER_RUN));
+        orders = new ArrayList<Order>();
+        orders.add( new Order( Order.ORDER_TURN));
+        orders.add( new Order( Order.ORDER_SIDE));
+        orders.add( new Order( Order.ORDER_RUN));
     }
 
     @Override

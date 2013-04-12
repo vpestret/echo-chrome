@@ -146,4 +146,38 @@ public class Unit extends RectEntity {
                     " are not supported", this, rect);
         }
     }
+    
+    private float maxVel_sq = 0.0001f;
+    //private float minVel_sq = 0.000025f;
+    private float ep_sq = 0.000025f;
+    
+    public void execute()
+    {
+    	if ( orders.size() == 0 )
+    		return;
+    	
+    	Order curr_order = orders.get( 0);
+		float vect_x = curr_order.getX() - cx;
+		float vect_y = curr_order.getY() - cy;
+		
+    	if ( curr_order.getType() == Order.ORDER_SIDE )
+    	{
+    		double tau = Math.sqrt( ( vect_x * vect_x + vect_y * vect_y) / maxVel_sq);
+    		if ( tau  > 1.0 )
+    		{
+    			cx += ( float) vect_x / tau;
+    			cy += ( float) vect_y / tau;
+    		} else {
+    			cx += vect_x;
+    			cy += vect_y;
+    		}
+    		float dist_sq = ( curr_order.getX() - cx) * ( curr_order.getX() - cx) +
+    				( curr_order.getY() - cy) * ( curr_order.getY() - cy);
+    		if ( dist_sq < ep_sq )
+    		{
+    			orders.remove( 0);
+    		}
+    	}
+    	
+    }
 }

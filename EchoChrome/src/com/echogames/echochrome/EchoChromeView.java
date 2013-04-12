@@ -300,7 +300,7 @@ public class EchoChromeView extends View {
     		
     		if ( Order.ORDER_ERR != order_type && mGameContext != null)
     		{
-    			PointF tmpF = disp2map( ( int) x, ( int) y);
+    			PointF tmpF = disp2map( ( int) mMenuCX, ( int) mMenuCY);
     			mGameContext.mUnits[ mSelected ].orders.add( new Order( order_type, tmpF.x, tmpF.y));
     		}
     	}
@@ -365,10 +365,14 @@ public class EchoChromeView extends View {
     	private int counter;
 
     	public void run() {
-    		if (counter % 10 == 0) {
-    			Log.d( TAG, "Counter = " + counter);
+    		if ( mGameContext != null )
+    		{
+    			mGameContext.execute();
     			ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
-    		}
+    			mCB.updateView();
+    		}    			
+    		if (counter % 10 == 0)
+    			Log.d( TAG, "Counter = " + counter);
     		counter++;
     	}
     };

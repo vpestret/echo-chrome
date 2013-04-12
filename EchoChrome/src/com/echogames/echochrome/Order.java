@@ -60,6 +60,16 @@ public class Order {
     	return type;
     }
     
+    public float getX()
+    {
+    	return x;
+    }
+    
+    public float getY()
+    {
+    	return y;
+    }
+    
 	public String getName()
 	{
     	switch ( type )

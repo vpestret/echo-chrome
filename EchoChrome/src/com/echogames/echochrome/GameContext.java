@@ -92,4 +92,12 @@ public class GameContext {
             }
         }
     }
+    
+    public void execute()
+    {
+    	for ( int idx = 0; idx < mUnits.length; idx++ )
+    	{
+    		mUnits[ idx ].execute();
+    	}
+    }
 }

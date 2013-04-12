@@ -1,6 +1,8 @@
 package com.echogames.echochrome;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import android.os.Bundle;
 
 public class Unit extends RectEntity {
     // looks like circle with dedicated direction    
@@ -20,7 +22,36 @@ public class Unit extends RectEntity {
         update_rect();
         orders = new ArrayList<Order>();
     }
-
+    
+    Unit( String prefix, Bundle savedInstanceState)
+    {
+    	cx = savedInstanceState.getFloat( prefix + "cx");
+        cy = savedInstanceState.getFloat( prefix + "cy");
+        r = savedInstanceState.getFloat( prefix + "r");
+        dir = savedInstanceState.getFloat( prefix + "dir");
+        orders = new ArrayList<Order>();
+        for ( int idx = 0; idx < savedInstanceState.getInt( prefix + "orders_num"); idx++ )
+        {
+        	orders.add( new Order( prefix + "order" + idx, savedInstanceState));
+        }
+    }
+    
+    public void saveState( String prefix, Bundle targetInstanceState)
+    {
+        targetInstanceState.putFloat( prefix + "cx", cx);
+        targetInstanceState.putFloat( prefix + "cy", cy);
+        targetInstanceState.putFloat( prefix + "r", r);
+        targetInstanceState.putFloat( prefix + "dir", dir);
+        targetInstanceState.putInt( prefix + "orders_num", orders.size());  
+        int idx = 0;
+    	Iterator< Order > orders_i = orders.iterator();
+    	while ( orders_i.hasNext() )
+    	{
+    		orders_i.next().saveState( prefix + "order" + idx, targetInstanceState);	
+    		idx++;
+    	}   	
+    }
+    
     @Override
     public void update_rect() {
         this.left   = this.cx - this.r;

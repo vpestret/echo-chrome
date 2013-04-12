@@ -24,12 +24,7 @@ public class GameContext {
         mUnits = new Unit[ nUnits ];
         for ( int idx = 0; idx < nUnits; idx++ )
         {
-            mUnits[ idx ] = new Unit(
-                    savedInstanceState.getFloat( "Unit" + idx + "cx"),
-                    savedInstanceState.getFloat( "Unit" + idx + "cy"),
-                    savedInstanceState.getFloat( "Unit" + idx + "r"),
-                    savedInstanceState.getFloat( "Unit" + idx + "dir"));
-
+            mUnits[ idx ] = new Unit( "Unit" + idx, savedInstanceState);
         }
         mUnitInCollision = savedInstanceState.getBooleanArray( "mUnitInCollision");
         mCurrentViewport = new RectF(
@@ -48,11 +43,7 @@ public class GameContext {
         targetInstanceState.putInt( "nUnits", nUnits);
         for ( int idx = 0; idx < nUnits; idx++ )
         {
-            targetInstanceState.putFloat( "Unit" + idx + "cx", mUnits[ idx ].cx);
-            targetInstanceState.putFloat( "Unit" + idx + "cy", mUnits[ idx ].cy);
-            targetInstanceState.putFloat( "Unit" + idx + "r", mUnits[ idx ].r);
-            targetInstanceState.putFloat( "Unit" + idx + "dir", mUnits[ idx ].dir);
-            
+        	mUnits[ idx ].saveState( "Unit" + idx, targetInstanceState);
         }
         targetInstanceState.putBooleanArray( "mUnitInCollision", mUnitInCollision);
         targetInstanceState.putFloat( "mCurrentViewportLeft", mCurrentViewport.left);

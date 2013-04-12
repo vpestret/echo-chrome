@@ -1,5 +1,7 @@
 package com.echogames.echochrome;
 
+import android.os.Bundle;
+
 public class Order {
 
     public final static int ORDER_TURN = 0;
@@ -12,6 +14,8 @@ public class Order {
     private final static String str_ORDER_ERR  = "X";
     
     private int type;
+    private float x;
+    private float y;
    
     Order( int type)
     {
@@ -21,6 +25,20 @@ public class Order {
     Order( int type, float x, float y)
     {
     	Create( type, x, y);
+    }
+    
+    Order( String prefix, Bundle savedInstanceState)
+    {
+    	type = savedInstanceState.getInt( prefix + "type");
+        x = savedInstanceState.getFloat( prefix + "x");
+        y = savedInstanceState.getFloat( prefix + "y");
+    }
+    
+    public void saveState( String prefix, Bundle targetInstanceState)
+    {
+    	targetInstanceState.putInt( prefix + "type", type);
+        targetInstanceState.putFloat( prefix + "x", x);
+        targetInstanceState.putFloat( prefix + "y", y);
     }
     
     private void Create( int type, float x, float y)
@@ -33,6 +51,8 @@ public class Order {
     	default:
     		this.type = ORDER_ERR;	
     	}
+    	this.x = x;
+    	this.y = y;
     }
     
     public int getType()

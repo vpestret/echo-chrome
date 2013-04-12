@@ -147,9 +147,10 @@ public class Unit extends RectEntity {
         }
     }
     
-    private float maxVel_sq = 0.0001f;
+    private float maxVel = 0.01f;
+    private float maxRad = ( float) Math.PI / 10;
+    private double maxSin = Math.sin( maxRad);
     //private float minVel_sq = 0.000025f;
-    private float ep_sq = 0.000025f;
     
     public void execute()
     {
@@ -159,25 +160,49 @@ public class Unit extends RectEntity {
     	Order curr_order = orders.get( 0);
 		float vect_x = curr_order.getX() - cx;
 		float vect_y = curr_order.getY() - cy;
+		double vect = Math.sqrt( ( vect_x * vect_x + vect_y * vect_y) );
+		boolean move_finished = false;
+		boolean turn_finished = false;
 		
-    	if ( curr_order.getType() == Order.ORDER_SIDE )
+    	if ( curr_order.getType() == Order.ORDER_SIDE || curr_order.getType() == Order.ORDER_RUN )
     	{
-    		double tau = Math.sqrt( ( vect_x * vect_x + vect_y * vect_y) / maxVel_sq);
+    		double tau = vect / maxVel;
     		if ( tau  > 1.0 )
     		{
     			cx += ( float) vect_x / tau;
     			cy += ( float) vect_y / tau;
     		} else {
-    			cx += vect_x;
-    			cy += vect_y;
-    		}
-    		float dist_sq = ( curr_order.getX() - cx) * ( curr_order.getX() - cx) +
-    				( curr_order.getY() - cy) * ( curr_order.getY() - cy);
-    		if ( dist_sq < ep_sq )
-    		{
-    			orders.remove( 0);
+    			cx = curr_order.getX();
+    			cy = curr_order.getY();
+    			if ( curr_order.getType() != Order.ORDER_RUN )
+    				orders.remove( 0);
+    			else
+    				move_finished = true;
     		}
     	}
     	
+    	if ( curr_order.getType() == Order.ORDER_TURN || curr_order.getType() == Order.ORDER_RUN )
+    	{
+    		double sin_dir = Math.sin( dir);
+    		double cos_dir = Math.cos( dir);
+    		double sin_vect = vect_x / vect;
+    		double cos_vect = vect_y / vect;
+    		double sin_diff = cos_vect * cos_dir - sin_vect * sin_dir;
+    		double cos_diff = sin_vect * cos_dir + cos_vect * sin_dir;
+    		if ( cos_diff < 0 || sin_diff > maxSin)
+    		{
+    			dir += Math.signum( sin_diff) * maxRad;
+    		} else
+    		{
+    			dir = ( float) Math.atan2( vect_y, vect_x);
+       			if ( curr_order.getType() != Order.ORDER_RUN )
+    				orders.remove( 0);
+    			else
+    				turn_finished = true;
+    		}		
+    	}
+    	
+    	if ( curr_order.getType() == Order.ORDER_RUN && move_finished && turn_finished )
+    		orders.remove( 0);    	
     }
 }

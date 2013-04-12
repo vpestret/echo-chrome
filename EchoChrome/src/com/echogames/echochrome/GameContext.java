@@ -70,10 +70,20 @@ public class GameContext {
             mUnits[ idx ] = new Unit( ( float) ( Math.random() * ( mMapWidth - 2 * r_max) + r_max),
             ( float) ( Math.random() * ( mMapHeight - 2 * r_max) + r_max),
             ( float) ( Math.random() * ( r_max - r_min) + r_min),
-            ( float) ( Math.random() * Math.PI * 2));
+            ( float) ( Math.random() * Math.PI * 2 - Math.PI));
             mUnitInCollision[ idx ] = false;
         }
+        check_collision();
+    }
+    
+    void check_collision()
+    {
+    	int nUnits = mUnits.length;
         float [] out_ratio = new float[ 1 ];
+        
+        for ( int idx = 0; idx < nUnits; idx++ )
+        	mUnitInCollision[ idx ] = false;
+        
         for ( int idx = 0; idx < nUnits - 1; idx++ )
         {
             for ( int idx2 = idx + 1; idx2 < nUnits ; idx2++ )
@@ -99,5 +109,6 @@ public class GameContext {
     	{
     		mUnits[ idx ].execute();
     	}
+    	check_collision();
     }
 }

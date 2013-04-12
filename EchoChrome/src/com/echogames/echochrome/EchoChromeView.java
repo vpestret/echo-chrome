@@ -1,6 +1,9 @@
 package com.echogames.echochrome;
 
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -55,6 +58,7 @@ public class EchoChromeView extends View {
     private float mMenuRCY = 0;
     private float mMenuRadius = 30;
     private float mMenuItemsRadius = 25;
+    private Timer mTimer;
     
     public EchoChromeView(Context context) {
         this(context, null, 0);
@@ -86,6 +90,9 @@ public class EchoChromeView extends View {
         mCurrentViewport = new RectF(AXIS_X_MIN, AXIS_Y_MIN,
                                      AXIS_X_MIN + ( AXIS_X_MAX - AXIS_X_MIN) * 3 / 4,
                                      AXIS_Y_MIN + ( AXIS_Y_MAX - AXIS_Y_MIN) * 3 / 4);
+        
+        mTimer = new Timer();
+        mTimer.scheduleAtFixedRate( mTimerTask, 50, 100);
     }
     
     public void setGameContext( GameContext gc) {
@@ -293,7 +300,8 @@ public class EchoChromeView extends View {
     		
     		if ( Order.ORDER_ERR != order_type && mGameContext != null)
     		{
-    			mGameContext.mUnits[ mSelected ].orders.add( new Order( order_type));
+    			PointF tmpF = disp2map( ( int) x, ( int) y);
+    			mGameContext.mUnits[ mSelected ].orders.add( new Order( order_type, tmpF.x, tmpF.y));
     		}
     	}
     	if ( mSelected != -1 && order_type == Order.ORDER_ERR) {
@@ -351,5 +359,27 @@ public class EchoChromeView extends View {
             return true;
         }
     };
+    
+    class AnimationTimerTask extends TimerTask 
+    {
+    	private int counter;
 
+    	public void run() {
+    		if (counter % 10 == 0) {
+    			Log.d( TAG, "Counter = " + counter);
+    			ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
+    		}
+    		counter++;
+    	}
+    };
+    
+    private AnimationTimerTask mTimerTask = new AnimationTimerTask();    
+    
+    @Override
+    protected void onDetachedFromWindow() {
+    	// TODO Auto-generated method stub
+    	super.onDetachedFromWindow();
+    	
+    	mTimer.cancel();
+    }
 }

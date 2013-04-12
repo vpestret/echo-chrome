@@ -12,8 +12,18 @@ public class Order {
     private final static String str_ORDER_ERR  = "X";
     
     private int type;
-    
+   
     Order( int type)
+    {
+    	Create( type, 0f, 0f);
+    }
+    
+    Order( int type, float x, float y)
+    {
+    	Create( type, x, y);
+    }
+    
+    private void Create( int type, float x, float y)
     {
     	switch ( type )
     	{

@@ -4,6 +4,7 @@ package com.echogames.echochrome;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -93,6 +94,23 @@ public class EchoChromeView extends View {
     	mCB = cb;
     }
     
+    private PointF tmp_disp2map = new PointF( 0f, 0f);
+    private Point  tmp_map2disp = new Point( 0, 0);
+    
+    public PointF disp2map( int x, int y)
+    {
+    	tmp_disp2map.x = ( float) x / mScale + mCurrentViewport.left;
+    	tmp_disp2map.y = ( float) y / mScale + mCurrentViewport.top;
+    	return tmp_disp2map;
+    }
+    
+    public Point map2disp( float x, float y)
+    {
+    	tmp_map2disp.x = Math.round( ( x - mCurrentViewport.left) * mScale);
+    	tmp_map2disp.y = Math.round( ( y - mCurrentViewport.top) * mScale);
+    	return tmp_map2disp;
+    }
+    
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -117,8 +135,9 @@ public class EchoChromeView extends View {
             mCurrentViewport.left = AXIS_X_MIN;
             mScale = mInitialScale;
         }
-        mCurrentViewport.bottom = mCurrentViewport.top + mContentRect.height() / mScale;
-        mCurrentViewport.right = mCurrentViewport.left + mContentRect.width() / mScale;
+        PointF tmpF = disp2map( mContentRect.width(), mContentRect.height());
+        mCurrentViewport.right  = tmpF.x;
+        mCurrentViewport.bottom = tmpF.y;        
         
         mPoleW = MAX_POLE_RATIO * mCurrentViewport.width();
         mPoleH = MAX_POLE_RATIO * mCurrentViewport.height();
@@ -145,8 +164,9 @@ public class EchoChromeView extends View {
                 else
                     mDataPaint.setColor( mUnitColor);
                 
-                float cx = ( mGameContext.mUnits[ idx ].cx - mCurrentViewport.left) * mScale;
-                float cy = ( mGameContext.mUnits[ idx ].cy - mCurrentViewport.top) * mScale;
+                Point tmp = map2disp( mGameContext.mUnits[ idx ].cx, mGameContext.mUnits[ idx ].cy);
+                float cx = ( float) tmp.x;
+                float cy = ( float) tmp.y;
                 float r =   mGameContext.mUnits[ idx ].r * mScale;
                 double dir = ( double) mGameContext.mUnits[ idx ].dir;
                 canvas.drawCircle( cx, cy, r, mDataPaint);
@@ -208,14 +228,14 @@ public class EchoChromeView extends View {
         canvas.restoreToCount( clipRestoreCount);
     }        
 
-    private void setViewportBottomLeft(float x, float y) {
+    private void setViewportTopLeft( float x, float y) {
         float curWidth = mCurrentViewport.width();
         float curHeight = mCurrentViewport.height();
         
         x = Math.max(AXIS_X_MIN - mPoleW, Math.min(x, AXIS_X_MAX + mPoleW - curWidth));
-        y = Math.max(AXIS_Y_MIN - mPoleH + curHeight, Math.min(y, AXIS_Y_MAX + mPoleH));
+        y = Math.max(AXIS_Y_MIN - mPoleH, Math.min(y, AXIS_Y_MAX + mPoleH - curHeight));
 
-        mCurrentViewport.set(x, y - curHeight, x + curWidth, y);
+        mCurrentViewport.set(x, y, x + curWidth, y + curHeight);
         ViewCompat.postInvalidateOnAnimation(this);
     }        
 
@@ -230,8 +250,8 @@ public class EchoChromeView extends View {
             return false;
         }
 
-        dest.set( mCurrentViewport.left + x / mScale,
-                  mCurrentViewport.top  + y / mScale);
+        PointF tmpF = disp2map( ( int) x, ( int) y);
+        dest.set( tmpF.x, tmpF.y);
         return true;
      }
     
@@ -292,8 +312,8 @@ public class EchoChromeView extends View {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             // So convert from pixels to view coordinates
-            setViewportBottomLeft( mCurrentViewport.left + distanceX / mScale,
-                                   mCurrentViewport.bottom + distanceY / mScale);
+        	PointF tmpF = disp2map( ( int) distanceX, ( int) distanceY);
+        	setViewportTopLeft( tmpF.x, tmpF.y);
             
             if ( mGameContext != null )
             {

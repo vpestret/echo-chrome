@@ -192,7 +192,7 @@ public class Unit extends RectEntity {
 
         if ( curr_order.getType() == Order.ORDER_SIDE )
         {
-            double curr_vel = cos_diff * (maxVel - minVel) + minVel;
+            double curr_vel = ( cos_diff + 1) / 2 * ( maxVel - minVel) + minVel;
             double tau = vect / curr_vel;
             if ( tau  > 1.0 )
             {
@@ -222,7 +222,7 @@ public class Unit extends RectEntity {
             }        
         } else if (  curr_order.getType() == Order.ORDER_RUN )
         {
-            double curr_vel = cos_diff * (maxVel - minVel) + minVel;
+            double curr_vel = ( cos_diff + 1) / 2 * ( maxVel - minVel) + minVel;
             double tau = vect / curr_vel;
             if ( tau  > 1.0 )
             {

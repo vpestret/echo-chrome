@@ -30,7 +30,7 @@ public class CommandBar extends View {
     }
     
     public void setEchoChromeView( EchoChromeView ecv) {
-    	mECV = ecv;
+        mECV = ecv;
     }
     
     public CommandBar(Context context) {
@@ -74,25 +74,25 @@ public class CommandBar extends View {
         canvas.drawRect(mContentRect, mAxisPaint);
         if ( mGameContext != null && mECV != null && mECV.mSelected != -1 )
         {
-        	ArrayList< Order > orders = mGameContext.mUnits[ mECV.mSelected ].orders;
-        	Iterator< Order > orders_i = orders.iterator();
-        	int order_idx = 0;
-        	int dir_x = mContentRect.width() > mContentRect.height() ? 1 : 0;
-        	int dir_y = 1 - dir_x;
-        	int mStride = dir_x * mContentRect.height() + dir_y * mContentRect.width();
-        	mAxisPaint.setTextSize( mStride - 2 * mPad);
-        	while (  orders_i.hasNext() )
-        	{
-        		Order order = orders_i.next();
-        		if ( order_idx == 0 )
-        		{
-        			mAxisPaint.setStyle( Paint.Style.FILL_AND_STROKE);
-        		}
-        		canvas.drawText( order.getName(), mContentRect.left + mPad + mStride * dir_x * order_idx,
-        				         mContentRect.bottom - mPad - mStride * dir_y * order_idx, mAxisPaint);
-        		mAxisPaint.setStyle( Paint.Style.STROKE);
-        		order_idx++;
-        	}
+            ArrayList< Order > orders = mGameContext.mUnits[ mECV.mSelected ].orders;
+            Iterator< Order > orders_i = orders.iterator();
+            int order_idx = 0;
+            int dir_x = mContentRect.width() > mContentRect.height() ? 1 : 0;
+            int dir_y = 1 - dir_x;
+            int mStride = dir_x * mContentRect.height() + dir_y * mContentRect.width();
+            mAxisPaint.setTextSize( mStride - 2 * mPad);
+            while (  orders_i.hasNext() )
+            {
+                Order order = orders_i.next();
+                if ( order_idx == 0 )
+                {
+                    mAxisPaint.setStyle( Paint.Style.FILL_AND_STROKE);
+                }
+                canvas.drawText( order.getName(), mContentRect.left + mPad + mStride * dir_x * order_idx,
+                                 mContentRect.bottom - mPad - mStride * dir_y * order_idx, mAxisPaint);
+                mAxisPaint.setStyle( Paint.Style.STROKE);
+                order_idx++;
+            }
         }
     }
     
@@ -102,38 +102,38 @@ public class CommandBar extends View {
         return retVal || super.onTouchEvent(event);
     }
     
-	private final GestureDetector.SimpleOnGestureListener mGestureListener
-	    = new GestureDetector.SimpleOnGestureListener()
-	{
-		@Override
-		public boolean onDown(MotionEvent e) {
-			updateView();
-		    return true;
-		}
-		
-		@Override     
-		public boolean onSingleTapUp(MotionEvent e) {
-		    Log.d(TAG, "onSingleTapUp: " + e.toString());
-		    updateOrders( e.getX(), e.getY());           
-		    updateView();
-		    return true;
-		} 
-	};
-	
-	private void updateOrders( float x, float y)
-	{
+    private final GestureDetector.SimpleOnGestureListener mGestureListener
+        = new GestureDetector.SimpleOnGestureListener()
+    {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            updateView();
+            return true;
+        }
+        
+        @Override     
+        public boolean onSingleTapUp(MotionEvent e) {
+            Log.d(TAG, "onSingleTapUp: " + e.toString());
+            updateOrders( e.getX(), e.getY());           
+            updateView();
+            return true;
+        } 
+    };
+    
+    private void updateOrders( float x, float y)
+    {
         if ( mGameContext != null && mECV != null && mECV.mSelected != -1 )
         {
-	    	int dir_x = mContentRect.width() > mContentRect.height() ? 1 : 0;
-	    	int dir_y = 1 - dir_x;
-	    	int mStride = dir_x * mContentRect.height() + dir_y * mContentRect.width();
-	    	int idx = ( int) ( x / mStride) * dir_x +
-	    			  ( int) ( ( mContentRect.height() - y) / mStride) * dir_y;
-	    	ArrayList< Order > orders = mGameContext.mUnits[ mECV.mSelected ].orders;
-	    	if ( 0 <= idx && idx < orders.size() )
-	    	{
-	    		orders.remove( idx);
-	    	}
+            int dir_x = mContentRect.width() > mContentRect.height() ? 1 : 0;
+            int dir_y = 1 - dir_x;
+            int mStride = dir_x * mContentRect.height() + dir_y * mContentRect.width();
+            int idx = ( int) ( x / mStride) * dir_x +
+                      ( int) ( ( mContentRect.height() - y) / mStride) * dir_y;
+            ArrayList< Order > orders = mGameContext.mUnits[ mECV.mSelected ].orders;
+            if ( 0 <= idx && idx < orders.size() )
+            {
+                orders.remove( idx);
+            }
         }
-	}
+    }
 }

@@ -2,7 +2,7 @@ package com.echogames.echochrome;
 
 import android.graphics.RectF;
 
-public class RectEntity extends RectF {
+public abstract class RectEntity extends RectF {
     // Basic rectangle intended for optimization in collision detection
     // re_x, re_y - upper left corner
     // re_r - right border
@@ -20,11 +20,5 @@ public class RectEntity extends RectF {
         else
             return true;        
     }
-    public void update_rect()
-    {
-        this.left   = 0;
-        this.top    = 0;
-        this.right  = 0;
-        this.bottom = 0;
-    }
+    protected abstract void update_rect();
 }

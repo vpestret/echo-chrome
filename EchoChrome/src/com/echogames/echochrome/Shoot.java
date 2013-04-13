@@ -2,11 +2,11 @@ package com.echogames.echochrome;
 
 public class Shoot extends RectEntity {
     // looks like 2D vector    
-    public float cx;
-    public float cy;
-    public float vx;
-    public float vy;
-    public float v;
+    private float cx;
+    private float cy;
+    private float vx;
+    private float vy;
+    private float v;
     Shoot(float cx, float cy, float vx, float vy) {
         super();
         this.cx = cx;
@@ -18,12 +18,17 @@ public class Shoot extends RectEntity {
     }
 
     @Override
-    public void update_rect() {
+    protected void update_rect() {
         this.left   = Math.min(this.cx, this.cx+this.vx);
         this.right  = Math.max(this.cx, this.cx+this.vx);
         this.top    = Math.min(this.cy, this.cy+this.vy);
         this.bottom = Math.max(this.cy, this.cy+this.vy);
     }
+    
+    public float getCX() { return cx; }
+    public float getCY() { return cy; }
+    public float getVX() { return vx; }
+    public float getVY() { return vy; }
     
     public boolean collide( RectEntity rect, float[] out_ratio) throws CollisionException {
         out_ratio[0] = 0f;
@@ -36,8 +41,9 @@ public class Shoot extends RectEntity {
                 return false;
             }
             // normal flow
-            float s2 = ( it.cx - this.cx)  *  ( it.cx - this.cx) + ( it.cy - this.cy)  *  ( it.cy - this.cy);
-            float r2 = it.r  *  it.r;
+            float s2 = ( it.getCX() - this.getCX())  *  ( it.getCX() - this.getCX()) +
+                           ( it.getCY() - this.getCY())  *  ( it.getCY() - this.getCY());
+            float r2 = it.getR()  *  it.getR();
             if ( s2 < r2 )
             {
                 out_ratio[0] = 1f;
@@ -46,17 +52,19 @@ public class Shoot extends RectEntity {
             // beginning is not inside the circle consider its end
             float v2 = this.v * this.v;
             // just squared v+r > s
-            if ( !( v2 + 2  *  this.v  *  it.r + r2 > s2) ){
+            if ( !( v2 + 2  *  this.v  *  it.getR() + r2 > s2) ){
                 return false;                
             }
             // scalar multiplication
-            float smv = ( it.cx - this.cx)  *  this.vx + ( it.cy - this.cy)  *  this.vy;
+            float smv = ( it.getCX() - this.getCX())  *  this.getVX() +
+                          ( it.getCY() - this.getCY())  *  this.getVY();
             if ( !(smv > 0) )
             {
                 return false;
             }
             // vector multiplication
-            float sxv = ( it.cx - this.cx)  *  this.vy - ( it.cy - this.cy)  *  this.vx;
+            float sxv = ( it.getCX() - this.getCX())  *  this.getVY() -
+                          ( it.getCY() - this.getCY())  *  this.getVX();
             float d2 = sxv  *  sxv / v2;
             // just squared d < r
             if ( !(d2 < r2) )

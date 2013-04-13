@@ -43,7 +43,7 @@ public class GameContext {
         targetInstanceState.putInt( "nUnits", nUnits);
         for ( int idx = 0; idx < nUnits; idx++ )
         {
-        	mUnits[ idx ].saveState( "Unit" + idx, targetInstanceState);
+            mUnits[ idx ].saveState( "Unit" + idx, targetInstanceState);
         }
         targetInstanceState.putBooleanArray( "mUnitInCollision", mUnitInCollision);
         targetInstanceState.putFloat( "mCurrentViewportLeft", mCurrentViewport.left);
@@ -78,11 +78,11 @@ public class GameContext {
     
     void check_collision()
     {
-    	int nUnits = mUnits.length;
+        int nUnits = mUnits.length;
         float [] out_ratio = new float[ 1 ];
         
         for ( int idx = 0; idx < nUnits; idx++ )
-        	mUnitInCollision[ idx ] = false;
+            mUnitInCollision[ idx ] = false;
         
         for ( int idx = 0; idx < nUnits - 1; idx++ )
         {
@@ -105,10 +105,10 @@ public class GameContext {
     
     public void execute()
     {
-    	for ( int idx = 0; idx < mUnits.length; idx++ )
-    	{
-    		mUnits[ idx ].execute();
-    	}
-    	check_collision();
+        for ( int idx = 0; idx < mUnits.length; idx++ )
+        {
+            mUnits[ idx ].execute();
+        }
+        check_collision();
     }
 }

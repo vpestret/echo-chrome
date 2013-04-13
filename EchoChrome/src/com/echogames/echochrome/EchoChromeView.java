@@ -104,7 +104,7 @@ public class EchoChromeView extends View {
     }
     
     public void setCommandBar( CommandBar cb) {
-    	mCB = cb;
+        mCB = cb;
     }
     
     private PointF tmp_disp2map = new PointF( 0f, 0f);
@@ -112,16 +112,16 @@ public class EchoChromeView extends View {
     
     public PointF disp2map( int x, int y)
     {
-    	tmp_disp2map.x = ( float) x / mScale + mCurrentViewport.left;
-    	tmp_disp2map.y = ( float) y / mScale + mCurrentViewport.top;
-    	return tmp_disp2map;
+        tmp_disp2map.x = ( float) x / mScale + mCurrentViewport.left;
+        tmp_disp2map.y = ( float) y / mScale + mCurrentViewport.top;
+        return tmp_disp2map;
     }
     
     public Point map2disp( float x, float y)
     {
-    	tmp_map2disp.x = Math.round( ( x - mCurrentViewport.left) * mScale);
-    	tmp_map2disp.y = Math.round( ( y - mCurrentViewport.top) * mScale);
-    	return tmp_map2disp;
+        tmp_map2disp.x = Math.round( ( x - mCurrentViewport.left) * mScale);
+        tmp_map2disp.y = Math.round( ( y - mCurrentViewport.top) * mScale);
+        return tmp_map2disp;
     }
     
     @Override
@@ -177,11 +177,11 @@ public class EchoChromeView extends View {
                 else
                     mDataPaint.setColor( mUnitColor);
                 
-                Point tmp = map2disp( mGameContext.mUnits[ idx ].cx, mGameContext.mUnits[ idx ].cy);
+                Point tmp = map2disp( mGameContext.mUnits[ idx ].getCX(), mGameContext.mUnits[ idx ].getCY());
                 float cx = ( float) tmp.x;
                 float cy = ( float) tmp.y;
-                float r =   mGameContext.mUnits[ idx ].r * mScale;
-                double dir = ( double) mGameContext.mUnits[ idx ].dir;
+                float r =   mGameContext.mUnits[ idx ].getR() * mScale;
+                double dir = ( double) mGameContext.mUnits[ idx ].getDir();
                 canvas.drawCircle( cx, cy, r, mDataPaint);
                 canvas.drawLine( cx, cy, cx + ( float) Math.cos( dir) * r ,
                                  cy + ( float) Math.sin( dir) * r , mDataPaint);
@@ -218,7 +218,7 @@ public class EchoChromeView extends View {
                 
         if ( mMenuVisible )
         {
-        	mDataPaint.setColor( mMenuColor);
+            mDataPaint.setColor( mMenuColor);
             canvas.drawCircle( mMenuCX, mMenuCY, mMenuRadius, mDataPaint);
             
             // Turn menu item
@@ -273,9 +273,9 @@ public class EchoChromeView extends View {
             if ( mGameContext != null )
             {
                 for ( int i = 0; i < mGameContext.mUnits.length; i++ ) {
-                    float rad_sq = ( x - mGameContext.mUnits[ i ].cx) * ( x - mGameContext.mUnits[ i ].cx) +
-                                   ( y - mGameContext.mUnits[ i ].cy) * ( y - mGameContext.mUnits[ i ].cy);
-                    if ( rad_sq < mGameContext.mUnits[ i ].r * mGameContext.mUnits[ i ].r ) {
+                    float rad_sq = ( x - mGameContext.mUnits[ i ].getCX()) * ( x - mGameContext.mUnits[ i ].getCX()) +
+                                   ( y - mGameContext.mUnits[ i ].getCY()) * ( y - mGameContext.mUnits[ i ].getCY());
+                    if ( rad_sq < mGameContext.mUnits[ i ].getR() * mGameContext.mUnits[ i ].getR() ) {
                         mSelected = i;
                     }
                 }
@@ -284,38 +284,38 @@ public class EchoChromeView extends View {
     }
     
     private void updateMenu( float x, float y) {
-    	int order_type = Order.ORDER_ERR;
-  	
-    	if ( mSelected != -1 && mMenuVisible ){    		
-    		// detect button to hit
-    		float rad_sq = ( x - mMenuTCX) * ( x - mMenuTCX) + ( y - mMenuTCY) * ( y - mMenuTCY);
-    		if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
-    			order_type = Order.ORDER_TURN;
-    		rad_sq = ( x - mMenuSCX) * ( x - mMenuSCX) + ( y - mMenuSCY) * ( y - mMenuSCY);
-    		if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
-    			order_type = Order.ORDER_SIDE;
-    		rad_sq = ( x - mMenuRCX) * ( x - mMenuRCX) + ( y - mMenuRCY) * ( y - mMenuRCY);
-    		if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
-    			order_type = Order.ORDER_RUN;
-    		
-    		if ( Order.ORDER_ERR != order_type && mGameContext != null)
-    		{
-    			PointF tmpF = disp2map( ( int) mMenuCX, ( int) mMenuCY);
-    			mGameContext.mUnits[ mSelected ].orders.add( new Order( order_type, tmpF.x, tmpF.y));
-    		}
-    	}
-    	if ( mSelected != -1 && order_type == Order.ORDER_ERR) {
-    		mMenuVisible = true;
-    		mMenuCX = x;
-    		mMenuCY = y;
-    		float item_distance = mMenuRadius + mMenuItemsRadius;
-    		mMenuTCX = mMenuCX - item_distance * ( float) Math.cos( Math.PI / 6);
-    		mMenuTCY = mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6);
-    		mMenuSCX = mMenuCX;
-    		mMenuSCY = mMenuCY - item_distance;
-    		mMenuRCX = mMenuCX + item_distance * ( float) Math.cos( Math.PI / 6);
-    		mMenuRCY = mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6);
-    	}
+        int order_type = Order.ORDER_ERR;
+      
+        if ( mSelected != -1 && mMenuVisible ){            
+            // detect button to hit
+            float rad_sq = ( x - mMenuTCX) * ( x - mMenuTCX) + ( y - mMenuTCY) * ( y - mMenuTCY);
+            if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
+                order_type = Order.ORDER_TURN;
+            rad_sq = ( x - mMenuSCX) * ( x - mMenuSCX) + ( y - mMenuSCY) * ( y - mMenuSCY);
+            if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
+                order_type = Order.ORDER_SIDE;
+            rad_sq = ( x - mMenuRCX) * ( x - mMenuRCX) + ( y - mMenuRCY) * ( y - mMenuRCY);
+            if ( rad_sq < mMenuItemsRadius * mMenuItemsRadius )
+                order_type = Order.ORDER_RUN;
+            
+            if ( Order.ORDER_ERR != order_type && mGameContext != null)
+            {
+                PointF tmpF = disp2map( ( int) mMenuCX, ( int) mMenuCY);
+                mGameContext.mUnits[ mSelected ].orders.add( new Order( order_type, tmpF.x, tmpF.y));
+            }
+        }
+        if ( mSelected != -1 && order_type == Order.ORDER_ERR) {
+            mMenuVisible = true;
+            mMenuCX = x;
+            mMenuCY = y;
+            float item_distance = mMenuRadius + mMenuItemsRadius;
+            mMenuTCX = mMenuCX - item_distance * ( float) Math.cos( Math.PI / 6);
+            mMenuTCY = mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6);
+            mMenuSCX = mMenuCX;
+            mMenuSCY = mMenuCY - item_distance;
+            mMenuRCX = mMenuCX + item_distance * ( float) Math.cos( Math.PI / 6);
+            mMenuRCY = mMenuCY + item_distance * ( float) Math.sin( Math.PI / 6);
+        }
     }
     
     public void releaseSelection()
@@ -347,8 +347,8 @@ public class EchoChromeView extends View {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             // So convert from pixels to view coordinates
-        	PointF tmpF = disp2map( ( int) distanceX, ( int) distanceY);
-        	setViewportTopLeft( tmpF.x, tmpF.y);
+            PointF tmpF = disp2map( ( int) distanceX, ( int) distanceY);
+            setViewportTopLeft( tmpF.x, tmpF.y);
             
             if ( mGameContext != null )
             {
@@ -362,28 +362,28 @@ public class EchoChromeView extends View {
     
     class AnimationTimerTask extends TimerTask 
     {
-    	private int counter;
+        private int counter;
 
-    	public void run() {
-    		if ( mGameContext != null )
-    		{
-    			mGameContext.execute();
-    			ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
-    			mCB.updateView();
-    		}    			
-    		if (counter % 10 == 0)
-    			Log.d( TAG, "Counter = " + counter);
-    		counter++;
-    	}
+        public void run() {
+            if ( mGameContext != null )
+            {
+                mGameContext.execute();
+                ViewCompat.postInvalidateOnAnimation(EchoChromeView.this);
+                mCB.updateView();
+            }                
+            if (counter % 10 == 0)
+                Log.d( TAG, "Counter = " + counter);
+            counter++;
+        }
     };
     
     private AnimationTimerTask mTimerTask = new AnimationTimerTask();    
     
     @Override
     protected void onDetachedFromWindow() {
-    	// TODO Auto-generated method stub
-    	super.onDetachedFromWindow();
-    	
-    	mTimer.cancel();
+        // TODO Auto-generated method stub
+        super.onDetachedFromWindow();
+        
+        mTimer.cancel();
     }
 }

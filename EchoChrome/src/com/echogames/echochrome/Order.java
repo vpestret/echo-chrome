@@ -19,69 +19,69 @@ public class Order {
    
     Order( int type)
     {
-    	Create( type, 0f, 0f);
+        Create( type, 0f, 0f);
     }
     
     Order( int type, float x, float y)
     {
-    	Create( type, x, y);
+        Create( type, x, y);
     }
     
     Order( String prefix, Bundle savedInstanceState)
     {
-    	type = savedInstanceState.getInt( prefix + "type");
+        type = savedInstanceState.getInt( prefix + "type");
         x = savedInstanceState.getFloat( prefix + "x");
         y = savedInstanceState.getFloat( prefix + "y");
     }
     
     public void saveState( String prefix, Bundle targetInstanceState)
     {
-    	targetInstanceState.putInt( prefix + "type", type);
+        targetInstanceState.putInt( prefix + "type", type);
         targetInstanceState.putFloat( prefix + "x", x);
         targetInstanceState.putFloat( prefix + "y", y);
     }
     
     private void Create( int type, float x, float y)
     {
-    	switch ( type )
-    	{
-    	case ORDER_TURN: case ORDER_SIDE: case ORDER_RUN:
-    		this.type = type;
-    		break;
-    	default:
-    		this.type = ORDER_ERR;	
-    	}
-    	this.x = x;
-    	this.y = y;
+        switch ( type )
+        {
+        case ORDER_TURN: case ORDER_SIDE: case ORDER_RUN:
+            this.type = type;
+            break;
+        default:
+            this.type = ORDER_ERR;    
+        }
+        this.x = x;
+        this.y = y;
     }
     
     public int getType()
     {
-    	return type;
+        return type;
     }
     
     public float getX()
     {
-    	return x;
+        return x;
     }
     
     public float getY()
     {
-    	return y;
+        return y;
     }
     
-	public String getName()
-	{
-    	switch ( type )
-    	{
-    	case ORDER_TURN:
-    		return str_ORDER_TURN;
-    	case ORDER_SIDE:
-    		return str_ORDER_SIDE;
-    	case ORDER_RUN:
-    		return str_ORDER_RUN;
-    	default:
-    		return str_ORDER_ERR;
-    	}		
-	}
+    public String getName()
+    {
+        switch ( type )
+        {
+        case ORDER_TURN:
+            return str_ORDER_TURN;
+        case ORDER_SIDE:
+            return str_ORDER_SIDE;
+        case ORDER_RUN:
+            return str_ORDER_RUN;
+        default:
+            return str_ORDER_ERR;
+        }        
+    }
 }

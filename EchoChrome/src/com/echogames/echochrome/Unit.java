@@ -6,12 +6,14 @@ import android.os.Bundle;
 
 public class Unit extends RectEntity {
     // looks like circle with dedicated direction    
-    public float cx;
-    public float cy;
-    public float r;
-    public float dir; // direction is in radians
+    private float cx;
+    private float cy;
+    private float r;
+    private float dir = 0; // direction is in RADIANS
+    double sin_dir = Math.sin( dir);
+    double cos_dir = Math.cos( dir);
     
-	public ArrayList<Order> orders;
+    public ArrayList<Order> orders;
     
     Unit(float cx, float cy, float r, float dir) {
         super();
@@ -19,20 +21,25 @@ public class Unit extends RectEntity {
         this.cy  = cy;
         this.r   = r;    
         this.dir = dir;
+        sin_dir = Math.sin( dir);
+        cos_dir = Math.cos( dir);
         update_rect();
         orders = new ArrayList<Order>();
     }
     
     Unit( String prefix, Bundle savedInstanceState)
     {
-    	cx = savedInstanceState.getFloat( prefix + "cx");
+        cx = savedInstanceState.getFloat( prefix + "cx");
         cy = savedInstanceState.getFloat( prefix + "cy");
         r = savedInstanceState.getFloat( prefix + "r");
         dir = savedInstanceState.getFloat( prefix + "dir");
+        sin_dir = Math.sin( dir);
+        cos_dir = Math.cos( dir);
+        update_rect();
         orders = new ArrayList<Order>();
         for ( int idx = 0; idx < savedInstanceState.getInt( prefix + "orders_num"); idx++ )
         {
-        	orders.add( new Order( prefix + "order" + idx, savedInstanceState));
+            orders.add( new Order( prefix + "order" + idx, savedInstanceState));
         }
     }
     
@@ -44,16 +51,16 @@ public class Unit extends RectEntity {
         targetInstanceState.putFloat( prefix + "dir", dir);
         targetInstanceState.putInt( prefix + "orders_num", orders.size());  
         int idx = 0;
-    	Iterator< Order > orders_i = orders.iterator();
-    	while ( orders_i.hasNext() )
-    	{
-    		orders_i.next().saveState( prefix + "order" + idx, targetInstanceState);	
-    		idx++;
-    	}   	
+        Iterator< Order > orders_i = orders.iterator();
+        while ( orders_i.hasNext() )
+        {
+            orders_i.next().saveState( prefix + "order" + idx, targetInstanceState);    
+            idx++;
+        }       
     }
     
     @Override
-    public void update_rect() {
+    protected void update_rect() {
         this.left   = this.cx - this.r;
         this.right  = this.cx + this.r;
         this.top    = this.cy - this.r;
@@ -147,62 +154,99 @@ public class Unit extends RectEntity {
         }
     }
     
+    public float getCX() { return cx; }
+    public float getCY() { return cy; }
+    public float getR() { return r; }
+    public float getDir() { return dir; }
+    
     private float maxVel = 0.01f;
     private float maxRad = ( float) Math.PI / 10;
     private double maxSin = Math.sin( maxRad);
-    //private float minVel_sq = 0.000025f;
+    private float minVel = 0.005f;
     
     public void execute()
     {
-    	if ( orders.size() == 0 )
-    		return;
-    	
-    	Order curr_order = orders.get( 0);
-		float vect_x = curr_order.getX() - cx;
-		float vect_y = curr_order.getY() - cy;
-		double vect = Math.sqrt( ( vect_x * vect_x + vect_y * vect_y) );
-		boolean move_finished = false;
-		boolean turn_finished = false;
-		
-    	if ( curr_order.getType() == Order.ORDER_SIDE || curr_order.getType() == Order.ORDER_RUN )
-    	{
-    		double tau = vect / maxVel;
-    		if ( tau  > 1.0 )
-    		{
-    			cx += ( float) vect_x / tau;
-    			cy += ( float) vect_y / tau;
-    		} else {
-    			cx = curr_order.getX();
-    			cy = curr_order.getY();
-    			if ( curr_order.getType() != Order.ORDER_RUN )
-    				orders.remove( 0);
-    			else
-    				move_finished = true;
-    		}
-    	}
-    	
-    	if ( curr_order.getType() == Order.ORDER_TURN || curr_order.getType() == Order.ORDER_RUN )
-    	{
-    		double sin_dir = Math.sin( dir);
-    		double cos_dir = Math.cos( dir);
-    		double sin_vect = vect_x / vect;
-    		double cos_vect = vect_y / vect;
-    		double sin_diff = cos_vect * cos_dir - sin_vect * sin_dir;
-    		double cos_diff = sin_vect * cos_dir + cos_vect * sin_dir;
-    		if ( cos_diff < 0 || sin_diff > maxSin)
-    		{
-    			dir += Math.signum( sin_diff) * maxRad;
-    		} else
-    		{
-    			dir = ( float) Math.atan2( vect_y, vect_x);
-       			if ( curr_order.getType() != Order.ORDER_RUN )
-    				orders.remove( 0);
-    			else
-    				turn_finished = true;
-    		}		
-    	}
-    	
-    	if ( curr_order.getType() == Order.ORDER_RUN && move_finished && turn_finished )
-    		orders.remove( 0);    	
+        if ( orders.size() == 0 )
+            return;
+        
+        Order curr_order = orders.get( 0);
+        float vect_x = 0;
+        float vect_y = 0;
+        double vect = 0;
+        double sin_vect = 0;
+        double cos_vect = 0;
+        double cos_diff = 0;
+        
+        if ( curr_order.getType() == Order.ORDER_TURN ||
+             curr_order.getType() == Order.ORDER_SIDE ||
+             curr_order.getType() == Order.ORDER_RUN)
+        {
+            // auxiliary variables for order execution
+            vect_x = curr_order.getX() - cx;
+            vect_y = curr_order.getY() - cy;
+            vect = Math.sqrt( ( vect_x * vect_x + vect_y * vect_y) );    
+            sin_vect = vect_x / vect;
+            cos_vect = vect_y / vect;
+            cos_diff = sin_vect * cos_dir + cos_vect * sin_dir;
+        }
+
+        if ( curr_order.getType() == Order.ORDER_SIDE )
+        {
+            double curr_vel = cos_diff * (maxVel - minVel) + minVel;
+            double tau = vect / curr_vel;
+            if ( tau  > 1.0 )
+            {
+                cx += ( float) vect_x / tau;
+                cy += ( float) vect_y / tau;
+                update_rect();
+            } else {
+                cx = curr_order.getX();
+                cy = curr_order.getY();
+                update_rect();
+                orders.remove( 0);
+            }
+        } else if ( curr_order.getType() == Order.ORDER_TURN )
+        {
+            double sin_diff = cos_vect * cos_dir - sin_vect * sin_dir;            
+            if ( cos_diff < 0 || sin_diff > maxSin)
+            {
+                dir += Math.signum( sin_diff) * maxRad;
+                sin_dir = Math.sin( dir);
+                cos_dir = Math.cos( dir);
+            } else
+            {
+                dir = ( float) Math.atan2( vect_y, vect_x);
+                sin_dir = Math.sin( dir);
+                cos_dir = Math.cos( dir);
+                orders.remove( 0);
+            }        
+        } else if (  curr_order.getType() == Order.ORDER_RUN )
+        {
+            double curr_vel = cos_diff * (maxVel - minVel) + minVel;
+            double tau = vect / curr_vel;
+            if ( tau  > 1.0 )
+            {
+                cx += ( float) vect_x / tau;
+                cy += ( float) vect_y / tau;
+                update_rect();
+            } else {
+                cx = curr_order.getX();
+                cy = curr_order.getY();
+                update_rect();
+                orders.remove( 0);
+            }
+            double sin_diff = cos_vect * cos_dir - sin_vect * sin_dir;            
+            if ( cos_diff < 0 || sin_diff > maxSin)
+            {
+                dir += Math.signum( sin_diff) * maxRad;
+                sin_dir = Math.sin( dir);
+                cos_dir = Math.cos( dir);
+            } else
+            {
+                dir = ( float) Math.atan2( vect_y, vect_x);
+                sin_dir = Math.sin( dir);
+                cos_dir = Math.cos( dir);
+            }        
+        }
     }
 }

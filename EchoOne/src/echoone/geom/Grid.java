@@ -23,4 +23,11 @@ public class Grid {
 		result = new DList<BBox>();
 		return result;
 	}
+	
+	public DList<BBox> clip(BBox bb) {
+		DList<BBox> result;
+		
+		result = new DList<BBox>();
+		return result;
+	}
 }
